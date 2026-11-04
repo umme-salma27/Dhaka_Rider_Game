@@ -194,7 +194,7 @@ kbd{font-family:var(--disp);font-size:11px;min-width:26px;text-align:center;padd
 #navRemain{font-size:12px;color:var(--mut)}
 .nav-prog{height:5px;border-radius:99px;background:rgba(255,255,255,0.12);margin-top:6px;overflow:hidden}
 #navProg{height:100%;width:0;background:var(--nav,#33e1ff);transition:width .3s}
-#toasts{top:112px}
+#toasts{top:150px}
 #eventBanner{top:206px}
 #eventBanner.danger{background:linear-gradient(90deg,#b00020,#ff3b3b);box-shadow:0 10px 40px rgba(255,40,40,0.55);animation:dangerpulse .5s ease-in-out infinite alternate}
 #eventBanner.danger .ic{color:#b00020}
@@ -205,6 +205,11 @@ kbd{font-family:var(--disp);font-size:11px;min-width:26px;text-align:center;padd
 #chaseDist{font-size:13px;color:#ffc9c0}
 #chaseBox .bar{margin-top:6px;height:8px}
 #chaseBox .bar i{background:linear-gradient(90deg,#ff3b3b,#ffc21a,#2fc27a)}
+#chaseBig{position:absolute;left:50%;top:114px;transform:translateX(-50%);pointer-events:none;white-space:nowrap;
+  font-size:16px;font-weight:700;color:#fff;background:rgba(190,20,30,0.88);padding:5px 14px;border-radius:999px;box-shadow:0 4px 16px rgba(0,0,0,0.35)}
+#chaseBig b{font-family:var(--disp);font-weight:400;color:#ffe14d}
+#controlsHint{transition:opacity .8s}
+#controlsHint.fade{opacity:0;pointer-events:none}
 #chaseBox .hint{font-size:11px;color:#ffb4a8;margin-top:4px}
 
 /* ---------- v0.2: centered modal overlays ---------- */
@@ -279,6 +284,7 @@ kbd{font-family:var(--disp);font-size:11px;min-width:26px;text-align:center;padd
   <div class="wheel"></div>
   <div class="lt">DHAKA RIDER</div>
   <div class="ls" id="loadingText">ঢাকা শহর লোড হচ্ছে…</div>
+  <button class="btn primary hidden" id="btnTapStart">▶ শুরু করতে ক্লিক করুন<small>CLICK OR PRESS ANY KEY</small></button>
 </div>
 
 <div id="hud" class="hidden">
@@ -325,6 +331,8 @@ kbd{font-family:var(--disp);font-size:11px;min-width:26px;text-align:center;padd
     <div class="hint">দ্রুত দূরে পালান!</div>
   </div>
 
+  <div id="chaseBig" class="hidden">🏃 <b id="chaseBigN">১</b> জন তাড়া করছে · <span id="chaseBigD">০</span> মি</div>
+
   <div id="speedo" class="panel">
     <svg viewBox="0 0 210 150" id="speedSvg"></svg>
     <div id="brakeLamp">BRAKE</div>
@@ -351,7 +359,7 @@ kbd{font-family:var(--disp);font-size:11px;min-width:26px;text-align:center;padd
   <div id="flash"></div>
   <div id="toasts"></div>
   <div id="eventBanner"><div class="ic" id="evIcon">!</div><div class="tx" id="evText">ঘটনা<small>STREET EVENT</small></div></div>
-  <div id="prompt" class="hidden"><div id="promptHead">ভাই, আপনার অর্ডার রেডি!</div><div id="promptKey"><kbd>E</kbd><span id="promptText">পার্সেল নিতে E চাপুন</span></div></div>
+  <div id="prompt" class="hidden"><div id="promptHead" style="display:none"></div><div id="promptKey"><kbd>E</kbd><span id="promptText">পার্সেল নিতে E চাপুন</span></div></div>
   <div id="subtitle"><div class="who" id="subWho">রাইডার</div><div class="line" id="subLine"></div></div>
   <div id="bigMsg"><div class="b1">DELIVERY COMPLETED</div><div class="b2">ডেলিভারি সফল!</div><div class="b3" id="bigMoney">+৳150</div></div>
 </div>
@@ -1367,19 +1375,22 @@ const LEVELS = [
       { ax: 'x', c: -50, a: -125, b: 125, hw: 5, sw: 4, kind: 'side' },
     ],
     style: { schemes: [0, 1, 2, 3, 4, 5, 6, 7, 8], floors: [2, 6], width: [9, 14.5], depth: [12, 16] },
-    traffic: { bus: 1, car: 2, cng: 1, rickshaw: 2, moto: 1 },
-    peds: 10, talkers: 1, crossers: 1,
-    stalls: { fuchka: 0, jhalmuri: 0, fruit: 0, flower: 0, mobile: 0, chotpoti: 0, tea: 0 },
+    traffic: { bus: 3, car: 2, cng: 2, rickshaw: 9, moto: 2 },
+    peds: 65, talkers: 8, crossers: 7, roadPeds: 18,
+    stalls: { tea: 3, fuchka: 3, jhalmuri: 3, fruit: 3, chotpoti: 2, mobile: 2, flower: 2 },
     extras: { busStops: 1, parkedBikes: 2, parkedRickshaws: 1, construction: 0, billboards: 1, banners: 1 },
     legacy: true,
     potholes: [[-3.3, -66, 1.15], [-4.7, -22, 0.95], [3.9, 21, 1.05], [2.8, -31, 0.95], [-34, 47.4, 1.05], [-60, 48.4, 1.15], [58, -47.6, 1.0], [27, -52.4, 0.95], [-3.4, 84, 1.05], [36, 52.6, 1.0], [82, 47.5, 1.0]],
     fuel: 100, chaseSpeed: 6.0, timeFactor: 1.6,
     orders: [
       { rest: 'ঢাকা বিরিয়ানি', restSub: 'কাচ্চি · তেহারি · বোরহানি', item: 'কাচ্চি বিরিয়ানি (ফুল প্লেট)', cust: 'রাফি ভাই', place: 'শাপলা টাওয়ার, রোড ২', look: 0, restAt: [-11.6, -92], custAt: [-78, 59.6] },
+      // the other two v0.1 Mirpur orders are kept as orders 2 and 3 of this level
+      { rest: 'মামার হোটেল', restSub: 'তেহারি · ভাত · ভর্তা', item: 'তেহারি + বোরহানি', cust: 'সুমন ভাই', place: 'নীলাকাশ অ্যাপার্টমেন্ট, রোড ৭', look: 1, restAt: [11.6, 5], custAt: [80, -59.6] },
+      { rest: 'খিচুড়ি ঘর', restSub: 'খিচুড়ি · ডিম · ভর্তা', item: 'ভুনা খিচুড়ি + ডিম ভাজি', cust: 'করিম চাচা', place: 'বকুল ভিলা, মিরপুর ১০', look: 2, restAt: [55, 59.6], custAt: [-11.6, 100] },
     ],
   },
   {
-    id: 2, key: 'kazipara', name: 'কাজীপাড়া', en: 'KAZIPARA', diff: 1, size: 130, time: 'evening', rain: false,
+    id: 2, key: 'kazipara', name: 'কাজীপাড়া', en: 'KAZIPARA', diff: 1, size: 130, time: 'day', rain: false,
     blurb: 'মেট্রোরেলের নিচে সরু গলি, চায়ের দোকান আর রিকশার ভিড়।',
     roads: [
       { ax: 'z', c: 0, a: -130, b: 130, hw: 7, sw: 3.5, kind: 'main', metro: true },
@@ -1395,12 +1406,12 @@ const LEVELS = [
       { ax: 'z', c: 40, a: 35, b: 90, hw: 3.6, sw: 2, kind: 'lane' },
     ],
     style: { schemes: [0, 1, 4, 5, 6, 8, 10], floors: [2, 5], width: [7, 11], depth: [10, 14] },
-    traffic: { bus: 1, car: 1, cng: 2, rickshaw: 7, moto: 3 },
-    peds: 16, talkers: 2, crossers: 2,
-    stalls: { tea: 4, fuchka: 1, jhalmuri: 1, fruit: 1, mobile: 1, flower: 0, chotpoti: 0 },
+    traffic: { bus: 2, car: 1, cng: 2, rickshaw: 13, moto: 3 },
+    peds: 65, talkers: 9, crossers: 8, roadPeds: 21,
+    stalls: { tea: 9, fuchka: 3, jhalmuri: 3, fruit: 3, mobile: 3, flower: 1, chotpoti: 1 },
     extras: { busStops: 1, parkedBikes: 4, parkedRickshaws: 3, construction: 1, billboards: 1, banners: 2 },
     potholes: 9, fuel: 100, chaseSpeed: 6.1, timeFactor: 1.55,
-    orders: [{ rest: 'কাজীপাড়া কাবাব ঘর', restSub: 'শিক কাবাব · পরোটা', item: 'চিকেন শিক কাবাব + পরোটা', cust: 'নাদিয়া আপু', place: 'মেট্রো স্টেশনের পেছনের গলি', look: 1 }],
+    orders: [{ rest: 'কাজীপাড়া কাবাব ঘর', restSub: 'শিক কাবাব · পরোটা', item: 'চিকেন শিক কাবাব + পরোটা', cust: 'নাদিম ভাই', place: 'মেট্রো স্টেশনের পেছনের গলি', look: 1 }],
   },
   {
     id: 3, key: 'mohammadpur', name: 'মোহাম্মদপুর', en: 'MOHAMMADPUR', diff: 2, size: 130, time: 'day', rain: false,
@@ -1416,9 +1427,9 @@ const LEVELS = [
       { ax: 'z', c: -50, a: -80, b: 0, hw: 3.6, sw: 2, kind: 'lane' },
     ],
     style: { schemes: [0, 1, 2, 4, 5, 6, 7], floors: [3, 7], width: [8, 13], depth: [11, 15] },
-    traffic: { bus: 2, car: 3, cng: 3, rickshaw: 6, moto: 3, van: 1 },
-    peds: 22, talkers: 3, crossers: 2,
-    stalls: { fruit: 4, fuchka: 2, chotpoti: 2, jhalmuri: 1, tea: 2, mobile: 1, flower: 0 },
+    traffic: { bus: 3, car: 3, cng: 3, rickshaw: 12, moto: 3, van: 1 },
+    peds: 87, talkers: 10, crossers: 8, roadPeds: 24,
+    stalls: { fruit: 9, fuchka: 5, chotpoti: 5, jhalmuri: 3, tea: 5, mobile: 3, flower: 1 },
     extras: { busStops: 2, parkedBikes: 4, parkedRickshaws: 3, construction: 1, billboards: 2, banners: 2 },
     potholes: 10, fuel: 100, chaseSpeed: 6.2, timeFactor: 1.5,
     orders: [{ rest: 'মোহাম্মদপুর চাপ ঘর', restSub: 'গরুর চাপ · লুচি', item: 'গরুর চাপ + লুচি', cust: 'তানভীর ভাই', place: 'বাজার রোড, ব্লক সি', look: 0 }],
@@ -1438,19 +1449,19 @@ const LEVELS = [
     ],
     water: [[52, 88, -23, 18]], parks: [[50, 90, -27, 22]],
     style: { schemes: [0, 2, 3, 5, 7, 9, 11, 12], floors: [5, 10], width: [11, 17], depth: [13, 18] },
-    traffic: { bus: 2, car: 6, cng: 4, rickshaw: 5, moto: 4, microbus: 2 },
-    peds: 20, talkers: 3, crossers: 3,
-    stalls: { fuchka: 2, chotpoti: 1, tea: 2, fruit: 1, flower: 1, jhalmuri: 1, mobile: 1 },
+    traffic: { bus: 3, car: 6, cng: 4, rickshaw: 10, moto: 4, microbus: 2 },
+    peds: 78, talkers: 10, crossers: 9, roadPeds: 18,
+    stalls: { fuchka: 5, chotpoti: 3, tea: 5, fruit: 3, flower: 3, jhalmuri: 3, mobile: 3 },
     extras: { busStops: 2, parkedBikes: 4, parkedCars: 5, parkedRickshaws: 2, construction: 1, billboards: 2, banners: 1 },
     potholes: 8, fuel: 100, chaseSpeed: 6.3, timeFactor: 1.45,
     orders: [
-      { rest: 'লেকভিউ ক্যাফে', restSub: 'বার্গার · পাস্তা · কফি', item: 'চিকেন বার্গার কম্বো', cust: 'সাদিয়া আপু', place: 'রোড ২৭, বাড়ি ১৬', look: 1 },
+      { rest: 'লেকভিউ ক্যাফে', restSub: 'বার্গার · পাস্তা · কফি', item: 'চিকেন বার্গার কম্বো', cust: 'সাদিক ভাই', place: 'রোড ২৭, বাড়ি ১৬', look: 1 },
       { rest: 'ধানমন্ডি দই-চটপটি', restSub: 'দই ফুচকা · চটপটি', item: 'দই ফুচকা (২ প্লেট)', cust: 'আরিফ ভাই', place: 'সাতমসজিদ রোড', look: 0 },
     ],
   },
   {
-    id: 5, key: 'farmgate', name: 'ফার্মগেট', en: 'FARMGATE', diff: 3, size: 140, time: 'day', rain: true,
-    blurb: 'বাসের রাজ্য! বিশাল মোড়, সিগন্যাল, ফুটওভার ব্রিজ আর বৃষ্টি।',
+    id: 5, key: 'farmgate', name: 'ফার্মগেট', en: 'FARMGATE', diff: 3, size: 140, time: 'day', rain: false,
+    blurb: 'বাসের রাজ্য! বিশাল মোড়, সিগন্যাল আর ফুটওভার ব্রিজ।',
     roads: [
       { ax: 'z', c: 0, a: -140, b: 140, hw: 9, sw: 4, kind: 'main', median: true, signals: true },
       { ax: 'x', c: 0, a: -140, b: 140, hw: 9, sw: 4, kind: 'main', median: true, signals: true },
@@ -1461,18 +1472,18 @@ const LEVELS = [
     ],
     footbridges: [{ ax: 'z', c: 0, at: -40 }, { ax: 'x', c: 0, at: 42 }],
     style: { schemes: [0, 3, 5, 6, 7, 9, 11], floors: [5, 11], width: [10, 16], depth: [12, 17] },
-    traffic: { bus: 6, minibus: 3, cng: 5, car: 4, rickshaw: 3, moto: 4, van: 2, microbus: 2 },
-    peds: 22, talkers: 2, crossers: 3,
-    stalls: { tea: 2, fuchka: 1, jhalmuri: 2, mobile: 2, fruit: 1, chotpoti: 1, flower: 0 },
+    traffic: { bus: 9, minibus: 4, cng: 5, car: 4, rickshaw: 7, moto: 4, van: 2, microbus: 2 },
+    peds: 87, talkers: 9, crossers: 9, roadPeds: 21,
+    stalls: { tea: 5, fuchka: 3, jhalmuri: 5, mobile: 5, fruit: 3, chotpoti: 3, flower: 1 },
     extras: { busStops: 4, parkedBikes: 3, parkedCars: 2, parkedRickshaws: 2, construction: 2, billboards: 3, banners: 2 },
     potholes: 12, fuel: 100, chaseSpeed: 6.4, timeFactor: 1.4,
     orders: [
-      { rest: 'ফার্মগেট ফুচকা হাউজ', restSub: 'ফুচকা · চটপটি · লাচ্ছি', item: 'স্পেশাল ফুচকা + লাচ্ছি', cust: 'মিম আপু', place: 'তেজতুরী বাজার, বাড়ি ৯', look: 1 },
+      { rest: 'ফার্মগেট ফুচকা হাউজ', restSub: 'ফুচকা · চটপটি · লাচ্ছি', item: 'স্পেশাল ফুচকা + লাচ্ছি', cust: 'মামুন ভাই', place: 'তেজতুরী বাজার, বাড়ি ৯', look: 1 },
       { rest: 'বাস স্ট্যান্ড হোটেল', restSub: 'ভাত · মাছ · ডাল', item: 'ইলিশ ভাজা + ভাত', cust: 'জামাল চাচা', place: 'ইন্দিরা রোড', look: 2 },
     ],
   },
   {
-    id: 6, key: 'shahbagh', name: 'শাহবাগ', en: 'SHAHBAGH', diff: 3, size: 140, time: 'evening', rain: false,
+    id: 6, key: 'shahbagh', name: 'শাহবাগ', en: 'SHAHBAGH', diff: 3, size: 140, time: 'day', rain: false,
     blurb: 'ফুলের বাজার, বিশাল মোড়, পার্ক আর মানুষের ঢল।',
     roads: [
       { ax: 'z', c: 0, a: -140, b: 140, hw: 8, sw: 4.5, kind: 'main', median: true, signals: true },
@@ -1484,18 +1495,18 @@ const LEVELS = [
     ],
     parks: [[14, 140, 14, 140]],
     style: { schemes: [0, 2, 3, 5, 6, 7, 9], floors: [3, 9], width: [10, 15], depth: [12, 16] },
-    traffic: { bus: 4, cng: 4, car: 4, rickshaw: 5, moto: 4, microbus: 1 },
-    peds: 30, talkers: 4, crossers: 4,
-    stalls: { flower: 7, tea: 3, fuchka: 2, jhalmuri: 2, chotpoti: 1, fruit: 1, mobile: 1 },
+    traffic: { bus: 6, cng: 4, car: 4, rickshaw: 10, moto: 4, microbus: 1 },
+    peds: 110, talkers: 11, crossers: 10, roadPeds: 24,
+    stalls: { flower: 15, tea: 7, fuchka: 5, jhalmuri: 5, chotpoti: 3, fruit: 3, mobile: 3 },
     extras: { busStops: 2, parkedBikes: 3, parkedRickshaws: 4, construction: 1, billboards: 2, banners: 3 },
     potholes: 9, fuel: 100, chaseSpeed: 6.5, timeFactor: 1.38, extraRickshawEvents: true,
     orders: [
-      { rest: 'শাহবাগ তেহারি', restSub: 'মোরগ পোলাও · তেহারি', item: 'মোরগ পোলাও', cust: 'রিয়া আপু', place: 'ফুলের মার্কেটের পাশে', look: 1 },
+      { rest: 'শাহবাগ তেহারি', restSub: 'মোরগ পোলাও · তেহারি', item: 'মোরগ পোলাও', cust: 'রিয়াদ ভাই', place: 'ফুলের মার্কেটের পাশে', look: 1 },
       { rest: 'মামা চা ও নাস্তা', restSub: 'সিঙ্গারা · সমুচা · চা', item: 'সিঙ্গারা ১০ পিস', cust: 'হাসান ভাই', place: 'আজিজ মার্কেট গলি', look: 0 },
     ],
   },
   {
-    id: 7, key: 'olddhaka', name: 'পুরান ঢাকা', en: 'OLD DHAKA', diff: 4, size: 110, time: 'dusk', rain: false,
+    id: 7, key: 'olddhaka', name: 'পুরান ঢাকা', en: 'OLD DHAKA', diff: 4, size: 110, time: 'day', rain: false,
     blurb: 'সরু গলির গোলকধাঁধা, ঘন বাজার আর বিখ্যাত খাবারের দোকান।',
     roads: [
       { ax: 'z', c: -85, a: -110, b: 90, hw: 3.4, sw: 1.6, kind: 'lane' },
@@ -1510,14 +1521,14 @@ const LEVELS = [
       { ax: 'x', c: 90, a: -85, b: 80, hw: 3.4, sw: 1.6, kind: 'lane' },
     ],
     style: { schemes: [6, 13, 13, 14, 6, 1, 4], floors: [2, 5], width: [5, 9], depth: [8, 12], dense: true },
-    traffic: { rickshaw: 12, cng: 2, moto: 4, van: 1 },
-    peds: 26, talkers: 4, crossers: 0,
-    stalls: { tea: 3, fruit: 3, jhalmuri: 2, chotpoti: 2, fuchka: 1, mobile: 2, flower: 0 },
+    traffic: { rickshaw: 21, cng: 2, moto: 4, van: 1 },
+    peds: 103, talkers: 11, crossers: 6, roadPeds: 27,
+    stalls: { tea: 7, fruit: 7, jhalmuri: 5, chotpoti: 5, fuchka: 3, mobile: 5, flower: 1 },
     extras: { busStops: 0, parkedBikes: 5, parkedRickshaws: 5, construction: 1, billboards: 0, banners: 3, pump: true },
     potholes: 10, fuel: 35, chaseSpeed: 6.6, timeFactor: 1.35,
     orders: [
       { rest: 'নান্নার বিরিয়ানির গলি', restSub: 'মোরগ পোলাও · বিরিয়ানি', item: 'খাসির বিরিয়ানি', cust: 'বাবলু ভাই', place: 'লালবাগ কেল্লার পাশের গলি', look: 0 },
-      { rest: 'বাকরখানি ঘর', restSub: 'বাকরখানি · চা', item: 'বাকরখানি + দুধ চা', cust: 'আমেনা খালা', place: 'চকবাজার, বাড়ি ১২/এ', look: 1 },
+      { rest: 'বাকরখানি ঘর', restSub: 'বাকরখানি · চা', item: 'বাকরখানি + দুধ চা', cust: 'আমজাদ চাচা', place: 'চকবাজার, বাড়ি ১২/এ', look: 1 },
     ],
   },
   {
@@ -1532,14 +1543,14 @@ const LEVELS = [
       { ax: 'z', c: 95, a: -150, b: 150, hw: 5, sw: 3, kind: 'side' },
     ],
     style: { schemes: [9, 11, 12, 15, 9, 11, 5, 3], floors: [8, 20], width: [14, 22], depth: [14, 20], towers: true },
-    traffic: { bus: 5, car: 7, cng: 5, rickshaw: 3, moto: 5, microbus: 3, van: 2, minibus: 2 },
-    peds: 24, talkers: 3, crossers: 3,
-    stalls: { tea: 3, jhalmuri: 2, fuchka: 1, mobile: 2, fruit: 1, chotpoti: 1, flower: 0 },
+    traffic: { bus: 7, car: 7, cng: 5, rickshaw: 7, moto: 5, microbus: 3, van: 2, minibus: 3 },
+    peds: 94, talkers: 10, crossers: 9, roadPeds: 18,
+    stalls: { tea: 7, jhalmuri: 5, fuchka: 3, mobile: 5, fruit: 3, chotpoti: 3, flower: 1 },
     extras: { busStops: 4, parkedBikes: 3, parkedCars: 6, parkedRickshaws: 1, construction: 2, billboards: 3, banners: 1, sculpture: true, pump: true },
     potholes: 9, fuel: 45, chaseSpeed: 6.7, timeFactor: 1.18,
     orders: [
       { rest: 'অফিস লাঞ্চ বক্স', restSub: 'ভাত · মুরগি · সবজি', item: 'অফিস লাঞ্চ বক্স (৫টা)', cust: 'রহমান স্যার', place: 'ব্যাংক টাওয়ার, ১৪ তলা', look: 2 },
-      { rest: 'মতিঝিল কফি কর্নার', restSub: 'কফি · স্যান্ডউইচ', item: 'কোল্ড কফি + স্যান্ডউইচ', cust: 'তাসনিম আপু', place: 'কমার্স সেন্টার', look: 1 },
+      { rest: 'মতিঝিল কফি কর্নার', restSub: 'কফি · স্যান্ডউইচ', item: 'কোল্ড কফি + স্যান্ডউইচ', cust: 'তানিম ভাই', place: 'কমার্স সেন্টার', look: 1 },
     ],
   },
   {
@@ -1558,14 +1569,14 @@ const LEVELS = [
     ],
     water: [[71, 124, -34, 38]],
     style: { schemes: [9, 11, 12, 15, 7, 3, 12], floors: [6, 16], width: [14, 22], depth: [14, 20], towers: true },
-    traffic: { car: 9, cng: 3, rickshaw: 3, moto: 4, microbus: 3, bus: 2, van: 2 },
-    peds: 16, talkers: 3, crossers: 2,
-    stalls: { tea: 2, fuchka: 1, flower: 2, mobile: 1, fruit: 1, jhalmuri: 1, chotpoti: 0 },
+    traffic: { car: 9, cng: 3, rickshaw: 7, moto: 4, microbus: 3, bus: 3, van: 2 },
+    peds: 65, talkers: 10, crossers: 8, roadPeds: 12,
+    stalls: { tea: 5, fuchka: 3, flower: 5, mobile: 3, fruit: 3, jhalmuri: 3, chotpoti: 1 },
     extras: { busStops: 2, parkedBikes: 3, parkedCars: 8, parkedRickshaws: 1, construction: 1, billboards: 3, banners: 1, pump: true },
     potholes: 6, fuel: 40, chaseSpeed: 6.8, timeFactor: 1.25,
     orders: [
       { rest: 'দ্য গ্রিল হাউজ', restSub: 'স্টেক · গ্রিল · মকটেল', item: 'গ্রিলড চিকেন প্ল্যাটার', cust: 'মিস্টার করিম', place: 'গুলশান ২, রোড ১০৪', look: 2 },
-      { rest: 'বনানী সুশি বার', restSub: 'সুশি · রামেন', item: 'সুশি বক্স', cust: 'অনন্যা আপু', place: 'বনানী লেকের পাড়, বাড়ি ৭', look: 1 },
+      { rest: 'বনানী সুশি বার', restSub: 'সুশি · রামেন', item: 'সুশি বক্স', cust: 'অনিক ভাই', place: 'বনানী লেকের পাড়, বাড়ি ৭', look: 1 },
     ],
   },
   {
@@ -1583,19 +1594,34 @@ const LEVELS = [
     ],
     water: [[-111, 111, -71, 71]],
     style: { schemes: [7, 9, 11, 12, 15, 3, 5], floors: [5, 14], width: [12, 18], depth: [12, 16], towers: true },
-    traffic: { car: 7, cng: 4, rickshaw: 3, moto: 5, microbus: 2, bus: 3, van: 2 },
-    peds: 18, talkers: 3, crossers: 0,
-    stalls: { tea: 3, fuchka: 2, chotpoti: 2, jhalmuri: 2, flower: 1, mobile: 1, fruit: 1 },
+    traffic: { car: 7, cng: 4, rickshaw: 7, moto: 5, microbus: 2, bus: 5, van: 2 },
+    peds: 71, talkers: 10, crossers: 6, roadPeds: 12,
+    stalls: { tea: 7, fuchka: 5, chotpoti: 5, jhalmuri: 5, flower: 3, mobile: 3, fruit: 3 },
     extras: { busStops: 2, parkedBikes: 4, parkedCars: 4, parkedRickshaws: 2, construction: 1, billboards: 3, banners: 2, lakeLights: true, pump: true },
     potholes: 8, fuel: 35, chaseSpeed: 7.0, timeFactor: 1.15,
     orders: [
       { rest: 'ঝিলপাড় কাবাব', restSub: 'কাবাব · নান', item: 'বটি কাবাব + নান', cust: 'সজীব ভাই', place: 'হাতিরঝিল ব্রিজের ওপাশে', look: 0 },
-      { rest: 'রাতের বিরিয়ানি', restSub: 'রাত ১২টা পর্যন্ত খোলা', item: 'কাচ্চি (হাফ প্লেট)', cust: 'লাবণ্য আপু', place: 'মগবাজার মোড়, বাড়ি ২২', look: 1 },
+      { rest: 'রাতের বিরিয়ানি', restSub: 'রাত ১২টা পর্যন্ত খোলা', item: 'কাচ্চি (হাফ প্লেট)', cust: 'লিটন ভাই', place: 'মগবাজার মোড়, বাড়ি ২২', look: 1 },
       { rest: 'ঝালমুড়ি এক্সপ্রেস', restSub: 'ঝালমুড়ি · চানাচুর', item: 'স্পেশাল ঝালমুড়ি', cust: 'মোস্তফা চাচা', place: 'রামপুরা ব্রিজের গোড়ায়', look: 2 },
     ],
   },
 ];
-const VOICE_FILES = {"worker_ready": ["assets/audio/voices/npc/worker_ready.mp3", 1.87], "worker_handover": ["assets/audio/voices/npc/worker_handover.mp3", 2.81], "rider_ok": ["assets/audio/voices/rider/rider_ok.mp3", 2.02], "npc_city": ["assets/audio/voices/npc/npc_city.mp3", 2.71], "rider_shesh": ["assets/audio/voices/rider/rider_shesh.mp3", 1.78], "rider_mother": ["assets/audio/voices/rider/rider_mother.mp3", 3.36], "rider_heart": ["assets/audio/voices/rider/rider_heart.mp3", 4.06], "npc_kotha": ["assets/audio/voices/npc/npc_kotha.mp3", 1.63], "rider_kotha": ["assets/audio/voices/rider/rider_kotha.mp3", 1.56], "cust_kotha_f": ["assets/audio/voices/customer/cust_kotha_f.mp3", 1.82], "npc_thasaya": ["assets/audio/voices/npc/npc_thasaya.mp3", 3.34], "tea_race": ["assets/audio/voices/vendors/tea_race.mp3", 4.51], "rider_sorry": ["assets/audio/voices/rider/rider_sorry.mp3", 2.04], "fruit_banana": ["assets/audio/voices/vendors/fruit_banana.mp3", 4.03], "rick_road": ["assets/audio/voices/npc/rick_road.mp3", 2.52], "rider_side": ["assets/audio/voices/rider/rider_side.mp3", 1.85], "rider_jam": ["assets/audio/voices/rider/rider_jam.mp3", 2.54], "rider_moon": ["assets/audio/voices/rider/rider_moon.mp3", 2.86], "rider_lost": ["assets/audio/voices/rider/rider_lost.mp3", 3.82], "rider_fuel": ["assets/audio/voices/rider/rider_fuel.mp3", 2.88], "cust_late_m": ["assets/audio/voices/customer/cust_late_m.mp3", 1.75], "cust_biryani_m": ["assets/audio/voices/customer/cust_biryani_m.mp3", 4.22], "cust_ontime_m": ["assets/audio/voices/customer/cust_ontime_m.mp3", 2.21], "cust_late_f": ["assets/audio/voices/customer/cust_late_f.mp3", 1.75], "cust_biryani_f": ["assets/audio/voices/customer/cust_biryani_f.mp3", 3.46], "cust_ontime_f": ["assets/audio/voices/customer/cust_ontime_f.mp3", 1.92], "cust_late_e": ["assets/audio/voices/customer/cust_late_e.mp3", 2.21], "cust_biryani_e": ["assets/audio/voices/customer/cust_biryani_e.mp3", 4.37], "cust_ontime_e": ["assets/audio/voices/customer/cust_ontime_e.mp3", 2.42]};
+/* Recorded dialogue lines (assets/audio/voices). key: [path, duration in seconds] */
+const VOICE_FILES = {
+  "rider_jillu": ["assets/audio/voices/rider/rider_jillu.mp3", 2.27],
+  "rider_nearby": ["assets/audio/voices/rider/rider_nearby.mp3", 5.28],
+  "rider_side": ["assets/audio/voices/rider/rider_side.mp3", 1.85],
+  "rider_bachlam": ["assets/audio/voices/rider/rider_bachlam.mp3", 2.87],
+  "rider_gesi": ["assets/audio/voices/rider/rider_gesi.mp3", 1.91],
+  "rick_road": ["assets/audio/voices/npc/rick_road.mp3", 2.85],
+  "npc_khaiya": ["assets/audio/voices/npc/npc_khaiya.mp3", 3.13],
+  "pub_seal": ["assets/audio/voices/npc/pub_seal.mp3", 4.60],
+  "pub_chulkani": ["assets/audio/voices/npc/pub_chulkani.mp3", 4.73],
+  "stall_haire": ["assets/audio/voices/vendors/stall_haire.mp3", 2.90],
+  "cust_ontime": ["assets/audio/voices/customer/cust_ontime.mp3", 2.04],
+  "cust_late": ["assets/audio/voices/customer/cust_late.mp3", 3.89],
+  "cust_damaged": ["assets/audio/voices/customer/cust_damaged.mp3", 4.15]
+};
 
 /* =====================================================================
    DISTRICT BUILDER — turns a LEVELS entry into a playable city block.
@@ -2517,6 +2543,14 @@ function humanPose(H, dt) {
     case 'angry':
       T.jy = Math.max(0, Math.sin(t * 11)) * 0.13; T.lsx = -2.05 + Math.sin(t * 16) * 0.35; T.rsx = -2.05 - Math.sin(t * 16) * 0.35;
       T.lsz = -0.35; T.rsz = 0.35; T.lex = -1.2; T.rex = -1.2; T.sx = 0.16; T.hy = Math.sin(t * 15) * 0.28; break;
+    case 'punch': { // alternating punches, body twisting into each one
+      const ph = t * 10, a = Math.sin(ph), b = -a;
+      // bent over someone on the ground, punching downwards
+      T.py = 0.86; T.sx = 0.6; T.sy = a * 0.35; T.hx = -0.25;
+      T.lsx = -1.15 - Math.max(0, a) * 0.35; T.lex = -1.7 + Math.max(0, a) * 1.6; T.lsz = -0.15;
+      T.rsx = -1.15 - Math.max(0, b) * 0.35; T.rex = -1.7 + Math.max(0, b) * 1.6; T.rsz = 0.15;
+      T.lhx = -0.55; T.rhx = -0.2; T.lkx = 0.6; T.rkx = 0.45; T.hy = a * 0.1; break;
+    }
     case 'dismiss':
       T.rsx = -1.1; T.rsy = Math.sin(t * 5) * 0.7; T.rex = -0.35; T.hy = Math.sin(t * 4) * 0.2; T.hz = 0.1; break;
     case 'startled':
@@ -2557,6 +2591,11 @@ function humanPose(H, dt) {
       T.py = 0.96 - k * 0.66; T.sx = -0.55 * k + Math.sin(t * 10) * 0.05 * k; T.lhx = T.rhx = -1.45 * k; T.lkx = T.rkx = 0.25 * k;
       T.lsz = -(0.9 + Math.sin(t * 14) * 0.5) * (t < 1.2 ? 1 : 0.4); T.rsz = (0.9 + Math.sin(t * 14 + 1) * 0.5) * (t < 1.2 ? 1 : 0.4); T.lsx = T.rsx = 0.3 * k;
       T.hz = Math.sin(t * 6) * 0.25; T.hx = 0.1; break;
+    }
+    case 'down': { // knocked flat on the back, arms flopping, head lifting now and then
+      T.py = 0.13; T.sx = -1.42; T.hx = 0.35 + Math.max(0, Math.sin(t * 1.3)) * 0.35; T.hy = Math.sin(t * 0.9) * 0.3;
+      T.lhx = -1.5; T.rhx = -1.38; T.lkx = 0.08; T.rkx = 0.35; T.lhz = -0.12; T.rhz = 0.12;
+      T.lsz = -1.25 - Math.sin(t * 2.1) * 0.15; T.rsz = 1.25 + Math.sin(t * 1.7) * 0.15; T.lsx = -0.2; T.rsx = -0.2; T.lex = -0.2; T.rex = -0.2; break;
     }
     case 'recover': {
       const k = Math.min(1, t / 0.9);
@@ -3201,7 +3240,7 @@ const Traffic = {
 };
 const Ambient = {
   cd: 0,
-  conductor(a) { if (!playing() || this.cd > 0) return; const d = Math.hypot(a.pos.x - P.x, a.pos.z - P.z); if (d > 30) return; this.cd = 10; Bubbles.show(anchorOf(a.v.conductor), pick(['মিরপুর! মিরপুর! খালি গাড়ি!', 'আস্তে লেডিস! আস্তে!', 'ওস্তাদ, ডাইনে প্লাস্টিক!']), 2.6); },
+  conductor(a) { void a; /* conductors no longer shout text pop-ups (cleaner screen) */ },
   update(dt) { if (this.cd > 0) this.cd -= dt; },
 };
 
@@ -3231,6 +3270,22 @@ const Peds = {
         if (Math.hypot(x - World.start.x, z - World.start.z) < 8) continue;
         const p = this.make(PED_ARCH[(i * 7 + L.id) % PED_ARCH.length], 'walker', x, z, 0);
         Object.assign(p, { ax: a.x, az: a.z, bx: b.x, bz: b.z, u, dir: Math.random() < 0.5 ? 1 : -1, speed: rand(1.0, 1.45), len: Math.hypot(b.x - a.x, b.z - a.z), side: r.ax === 'z' ? { x: s, z: 0 } : { x: 0, z: s } });
+        p.h.speed = p.speed; p.h.setAction('walk'); break;
+      }
+    }
+    // people walking on the edge of the road itself (common on Dhaka streets); they keep clear of the lanes
+    const roadSegs = [];
+    for (const e of World.edges) { const pc = edgePieces(e); if (pc.r.hw < 3 || pc.t1 - pc.t0 < 12 || onBridge(pc.r, (pc.t0 + pc.t1) / 2)) continue; for (const s of [-1, 1]) roadSegs.push({ pc, s }); }
+    for (let i = 0; i < (L.roadPeds || 0) && roadSegs.length; i++) {
+      for (let tries = 0; tries < 12; tries++) {
+        const { pc, s } = spick(roadSegs), r = pc.r;
+        const lat = s * (r.hw - 0.45), ta = pc.t0 + 2, tb = pc.t1 - 2;
+        const a = sidePos(r, ta, lat), b = sidePos(r, tb, lat);
+        if (gGet(a.x, a.z) !== T_ROAD || gGet(b.x, b.z) !== T_ROAD) continue;
+        const u = Math.random(), x = lerp(a.x, b.x, u), z = lerp(a.z, b.z, u);
+        if (Math.hypot(x - World.start.x, z - World.start.z) < 12) continue;
+        const p = this.make(PED_ARCH[(i * 11 + L.id * 3) % PED_ARCH.length], 'walker', x, z, 0);
+        Object.assign(p, { ax: a.x, az: a.z, bx: b.x, bz: b.z, u, dir: Math.random() < 0.5 ? 1 : -1, speed: rand(0.9, 1.35), len: Math.hypot(b.x - a.x, b.z - a.z), side: r.ax === 'z' ? { x: s, z: 0 } : { x: 0, z: s }, onRoadEdge: true });
         p.h.speed = p.speed; p.h.setAction('walk'); break;
       }
     }
@@ -3271,7 +3326,13 @@ const Peds = {
     for (const p of this.list) {
       const h = p.h; p.cd -= dt;
       if (p.kind === 'chaser') continue;
-      if (p.state === 'stumble') { p.t -= dt; if (p.t < 0.9 && h.action === 'stumble') h.setAction('recover', true); if (p.t <= 0) { p.state = 'idle'; h.setAction(p.kind === 'walker' ? 'walk' : 'idle'); } continue; }
+      if (p.state === 'stumble') {
+        p.t -= dt;
+        if (p.downT && h.action === 'stumble' && p.t < p.downT - 0.55) h.setAction('down', true); // knocked flat
+        if (p.t < 0.9 && h.action !== 'recover') h.setAction('recover', true);
+        if (p.t <= 0) { p.state = 'idle'; p.downT = 0; h.setAction(p.kind === 'walker' ? 'walk' : 'idle'); }
+        continue;
+      }
       if (p.react > 0) { p.react -= dt; if (p.react <= 0) { h.look = null; h.setAction(p.kind === 'walker' ? 'walk' : p.kind === 'talker' ? 'talk' : 'idle'); } }
       if (p.kind === 'walker' && p.react <= 0) {
         p.u += p.dir * p.speed * dt / p.len;
@@ -3347,13 +3408,10 @@ const Sound = {
       o1.connect(lp); o2.connect(g2); g2.connect(lp); lp.connect(am); am.connect(eg); eg.connect(this.ch.sfx);
       o1.start(); o2.start(); lfo.start();
       this.eng = { o1, o2, lp, lfo, eg };
-      // traffic ambience bed + rain bed
+      // traffic ambience bed
       const amb = ctx.createBufferSource(); amb.buffer = brown; amb.loop = true;
       const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 380; bp.Q.value = 0.6;
       const ag = ctx.createGain(); ag.gain.value = 0.14; amb.connect(bp); bp.connect(ag); ag.connect(this.ch.amb); amb.start();
-      const rain = ctx.createBufferSource(); rain.buffer = buf; rain.loop = true;
-      const rf = ctx.createBiquadFilter(); rf.type = 'highpass'; rf.frequency.value = 1400;
-      this.rainGain = ctx.createGain(); this.rainGain.gain.value = World.L && World.L.rain ? 0.09 : 0; rain.connect(rf); rf.connect(this.rainGain); this.rainGain.connect(this.ch.amb); rain.start();
       const crowd = ctx.createBufferSource(); crowd.buffer = brown; crowd.loop = true;
       const cf = ctx.createBiquadFilter(); cf.type = 'bandpass'; cf.frequency.value = 700; cf.Q.value = 1.2;
       this.crowdGain = ctx.createGain(); this.crowdGain.gain.value = 0; crowd.connect(cf); cf.connect(this.crowdGain); this.crowdGain.connect(this.ch.amb); crowd.start();
@@ -3444,6 +3502,17 @@ const SFX = {
     pat.forEach((w, i) => { Sound.tone(i % 2 ? 95 : 140, 0.16, 'sine', 0.6, w, 0, 45); Sound.noise(0.1, 0.35, i % 2 ? 300 : 700, 1, w, rand(-0.5, 0.5), 'lowpass'); });
     const o = Sound.tone(1800, 0.9, 'sine', 0.2, 1.45, 0, 300); void o; this.boing(2.4, 0.9);
   },
+  beating(dur) { // irregular punches: body thump + slap + the odd grunt, with crowd shouting underneath
+    let w = 0.15, i = 0;
+    while (w < dur) {
+      const pan = rand(-0.6, 0.6), big = Math.random() < 0.35;
+      Sound.tone(big ? 72 : 105, 0.15, 'sine', big ? 0.8 : 0.55, w, pan, 38);
+      Sound.noise(0.06, big ? 0.6 : 0.42, rand(1300, 2600), 1.1, w, pan, 'bandpass');
+      if (i % 4 === 2) Sound.tone(rand(160, 210), 0.2, 'sawtooth', 0.12, w + 0.03, pan, 90);
+      w += rand(0.11, 0.27); i++;
+    }
+    Sound.noise(dur + 0.3, 0.14, 650, 0.9, 0, 0, 'bandpass');
+  },
   gameOver() { const notes = [392, 370, 349, 330]; notes.forEach((f, i) => { const d = i === 3 ? 1.3 : 0.42; const o = Sound.tone(f, d, 'sawtooth', 0.16, i * 0.48, 0, i === 3 ? f * 0.94 : null, 'music'); void o; }); },
   success() { [523, 659, 784, 1047].forEach((f, i) => Sound.tone(f, 0.35, 'triangle', 0.2, i * 0.11)); Sound.tone(1319, 0.8, 'sine', 0.12, 0.46); Sound.tone(784, 0.8, 'triangle', 0.1, 0.46); },
   coin() { Sound.tone(1568, 0.12, 'square', 0.12, 0.0); Sound.tone(2093, 0.4, 'square', 0.12, 0.08); Sound.noise(0.25, 0.08, 6000, 2, 0.08); },
@@ -3452,6 +3521,71 @@ const SFX = {
   warn() { Sound.tone(880, 0.12, 'square', 0.1); Sound.tone(660, 0.18, 'square', 0.1, 0.13); },
 };
 /* Procedural music: a light street groove while riding, a comic chase tune during chases */
+/* Recorded sound effects supplied for the game (assets/audio/sfx). Callers fall back to the
+   synthesized effects when a file is missing or cannot be played. */
+const Clips = {
+  els: {}, bad: {},
+  preload() {
+    for (const [k, src] of [['aye', 'assets/audio/sfx/aye.mp3'], ['fight', 'assets/audio/sfx/fight.mp3'], ['bell', 'assets/audio/sfx/bell.mp3']]) {
+      const a = new Audio(); a.preload = 'auto'; a.src = src; a.onerror = () => { this.bad[k] = true; }; this.els[k] = a;
+    }
+  },
+  vol() { return Settings.muted ? 0 : clamp(Settings.vol.master * Settings.vol.sfx * 1.1, 0, 1); },
+  play(k) {
+    const a = this.els[k]; if (!a || this.bad[k] || this.vol() <= 0) return false;
+    try { a.currentTime = 0; a.volume = this.vol(); const pr = a.play(); if (pr && pr.catch) pr.catch(() => { this.bad[k] = true; }); return true; } catch (e) { return false; }
+  },
+  stop(k) { const a = this.els[k]; if (a) { try { a.pause(); } catch (e) { /* ignore */ } } },
+};
+/* Start-screen music (assets/audio/music/start_music.mp3): plays on the main menu and on each
+   level's intro screen, and stops as soon as the ride starts. Browsers may block audio until the
+   first click / key press; in that case it starts on that first interaction. */
+const StartMusic = {
+  el: null, want: false, armed: false, fadeT: null,
+  init() {
+    const a = new Audio(); a.loop = true; a.preload = 'auto'; a.src = 'assets/audio/music/start_music.mp3';
+    a.onerror = () => { this.el = null; };
+    this.el = a;
+  },
+  vol() { return Settings.muted ? 0 : clamp(Settings.vol.master * Settings.vol.music * 1.4, 0, 1); },
+  applyVolume() { if (this.el && !this.fadeT) this.el.volume = this.vol(); },
+  play(fromStart) {
+    this.want = true; const a = this.el; if (!a) return;
+    if (this.fadeT) { clearInterval(this.fadeT); this.fadeT = null; }
+    a.volume = this.vol();
+    if (fromStart) { try { a.currentTime = 0; } catch (e) { /* not loaded yet */ } }
+    if (!a.paused) return;
+    const pr = a.play(); if (pr && pr.catch) pr.catch(() => this.arm());
+  },
+  /* resolves true when the music actually started without a click, false when the browser blocked it */
+  tryAutoplay() {
+    const a = this.el; this.want = true;
+    if (!a) return Promise.resolve(true);
+    a.volume = this.vol(); try { a.currentTime = 0; } catch (e) { /* not loaded yet */ }
+    const pr = a.play();
+    if (!pr || !pr.then) return Promise.resolve(!a.paused);
+    return Promise.race([
+      pr.then(() => true).catch((err) => !(err && err.name === 'NotAllowedError')),
+      new Promise((res) => setTimeout(() => res(!a.paused), 2500)),
+    ]);
+  },
+  /* autoplay was blocked: start on the first interaction that does not itself start the ride */
+  arm() {
+    if (this.armed) return; this.armed = true;
+    const go = (e) => {
+      if (e.target && e.target.closest && e.target.closest('#btnPlay,#btnIntroStart')) return;
+      if (e.type === 'keydown' && (e.code === 'Enter' || e.code === 'Space')) return;
+      window.removeEventListener('pointerdown', go, true); window.removeEventListener('keydown', go, true); this.armed = false;
+      if (this.want) this.play(false);
+    };
+    window.addEventListener('pointerdown', go, true); window.addEventListener('keydown', go, true);
+  },
+  stop() {
+    this.want = false; const a = this.el; if (!a || a.paused) return;
+    if (this.fadeT) clearInterval(this.fadeT);
+    this.fadeT = setInterval(() => { a.volume = Math.max(0, a.volume - 0.08); if (a.volume <= 0.01) { clearInterval(this.fadeT); this.fadeT = null; a.pause(); } }, 40);
+  },
+};
 const Music = {
   cur: null, timer: null, step: 0, next: 0,
   play(name) {
@@ -3516,7 +3650,7 @@ const Voice = {
   },
   status() {
     const files = Object.keys(VOICE_FILES).length, bad = Object.keys(this.failed).length;
-    if (bad < files) return 'বাংলা ভয়েস: জেনারেট করা অডিও ফাইল (' + (files - bad) + 'টি লাইন)' + (bad ? ' · কিছু ফাইল পাওয়া যায়নি' : '');
+    if (bad < files) return 'বাংলা ভয়েস: রেকর্ড করা অডিও (' + (files - bad) + 'টি লাইন)' + (bad ? ' · কিছু ফাইল পাওয়া যায়নি' : '');
     if (this.bn) return 'বাংলা ভয়েস: ব্রাউজার TTS (' + this.bn.name + ')';
     return 'বাংলা ভয়েস পাওয়া যায়নি — শুধু বাংলা সাবটাইটেল দেখানো হবে।';
   },
@@ -3595,9 +3729,11 @@ const Dialogue = {
       const sp = SPEAKERS[line.who] || SPEAKERS.ped;
       const vd = Voice.play(line.voice, line.text, sp);
       this.left = Math.max(vd + 0.45, line.dur || Math.max(2.0, 0.8 + line.text.length * 0.065));
-      $('subWho').textContent = line.name || sp.name; $('subWho').style.background = sp.color;
-      $('subLine').textContent = line.text; $('subtitle').classList.add('show');
-      if (line.actor && line.actor.anchor) Bubbles.show(line.actor.anchor, line.text, this.left);
+      // spoken lines are only heard; the text appears only when no voice could be played (e.g. muted)
+      if (!vd) {
+        $('subWho').textContent = line.name || sp.name; $('subWho').style.background = sp.color;
+        $('subLine').textContent = line.text; $('subtitle').classList.add('show');
+      } else $('subtitle').classList.remove('show');
       if (line.onStart) line.onStart();
     }
   },
@@ -3619,7 +3755,7 @@ function flash() { const f = $('flash'); f.classList.add('on'); setTimeout(() =>
 const Events = {
   active: null, cd: 0, now: 0, last: { rickshaw: -999, stall: -999, pothole: -999, incident: -999 }, per: { rickshaw: 32, stall: 18, pothole: 9, incident: 12 }, potholeT: 0,
   can(type) { return !this.active && this.cd <= 0 && (this.now - (this.last[type] || -999)) > (this.per[type] || 10) && !Chase.active; },
-  begin(type, title, sub, icon) { this.active = type; this.last[type] = this.now; if (title) Banner.show(title, sub, icon); },
+  begin(type) { this.active = type; this.last[type] = this.now; },
   end(type) { if (this.active === type) { this.active = null; this.cd = 5; } },
   update(dt) {
     this.now += dt; if (this.cd > 0) this.cd -= dt;
@@ -3666,14 +3802,6 @@ const FX = {
     this.stars.direction1 = V3(-2, 2, -2); this.stars.direction2 = V3(2, 4, 2); this.stars.minAngularSpeed = -8; this.stars.maxAngularSpeed = 8;
     this.splash = mk('splash', 60, new B.Color4(0.75, 0.55, 0.3, 0.8), new B.Color4(0.85, 0.85, 0.85, 0.5), [0.08, 0.2]);
     this.splash.minLifeTime = 0.4; this.splash.maxLifeTime = 0.9; this.splash.gravity = V3(0, -9, 0); this.splash.direction1 = V3(-2, 3, -2); this.splash.direction2 = V3(2, 5, 2);
-    if (World.L.rain) {
-      const rain = new B.ParticleSystem('rain', 4000, scene); rain.particleTexture = TEX.dot; rain.emitter = V3(0, 14, 0);
-      rain.minEmitBox = V3(-24, 0, -24); rain.maxEmitBox = V3(24, 0, 24); rain.color1 = new B.Color4(0.85, 0.9, 1, 0.6); rain.color2 = new B.Color4(0.75, 0.8, 0.9, 0.5);
-      rain.minSize = 0.05; rain.maxSize = 0.08; rain.minScaleY = 9; rain.maxScaleY = 14; rain.minLifeTime = 0.9; rain.maxLifeTime = 1.2; rain.emitRate = 2800;
-      rain.direction1 = V3(-0.5, -14, -0.3); rain.direction2 = V3(-0.3, -16, 0.3); rain.minEmitPower = 1; rain.maxEmitPower = 1.2; rain.gravity = V3(0, -6, 0);
-      rain.isBillboardBased = true; rain.billboardMode = B.ParticleSystem.BILLBOARDMODE_Y; rain.blendMode = B.ParticleSystem.BLENDMODE_STANDARD; rain.start();
-      this.rain = rain;
-    }
   },
   burst(ps, x, y, z, n) { if (!ps) return; ps.emitter.set(x, y, z); ps.manualEmitCount = n; },
 };
@@ -3841,7 +3969,6 @@ function buildStallsForLevel() {
   const roadsW = World.roads.filter((r) => r.sw >= 2 && !r.bridge);
   for (const type in counts) {
     let n = counts[type] || 0, tries = 0;
-    if (L.legacy) n = 0;
     while (n > 0 && tries++ < 300) {
       const r = spick(roadsW); if (!r) break;
       const t = srange(r.a + 10, r.b - 10); if (nearNode(r, t, 7) || onBridge(r, t)) continue;
@@ -3881,7 +4008,10 @@ const Parked = { list: [] };
 /* =====================================================================
    CHAOS — collisions with stalls, people, parked and moving vehicles
    ===================================================================== */
+const PED_DOWN_T = 9.6, PED_LINE_T = 3, PED_CHASE_T = 10, STALL_CHASE_T = 8;
+const PED_LINES = [['pub_seal', 'আমি তরে সিল মাইরা দিমু!'], ['pub_chulkani', 'বুঝছি তোমার মরণের চুলকানি উঠেছে।']];
 const Chaos = {
+  lineIdx: 0,
   incidents: 0, pedHitsRecent: [],
   check() {
     if (!playing() || P.locked) return;
@@ -3899,7 +4029,7 @@ const Chaos = {
   },
   stallHit(s) {
     s.state = 'hit'; s.t = 0; this.incidents++;
-    Events.begin('stall', s.type === 'tea' ? 'চায়ের দোকান লণ্ডভণ্ড!' : s.type === 'fruit' ? 'ফলের ঠেলা উল্টে গেল!' : 'দোকান উল্টে গেল!', 'STALL DISASTER', '!');
+    Events.begin('stall');
     SFX[s.info.sfx]();
     if (s.type === 'flower') Sound.noise(0.6, 0.2, 2200, 0.7, 0.15, 0, 'bandpass', 500);
     const fx = Math.sin(P.yaw), fz = Math.cos(P.yaw), sp = Math.min(Math.abs(P.v), 10);
@@ -3915,38 +4045,29 @@ const Chaos = {
     Scatter.spawn(s.info.scatter, s.x, s.y + 1.2, s.z, s.type === 'fruit' ? 22 : 12, fx, fz);
     FX.burst(FX.dust, s.x, s.y + 0.4, s.z, 25);
     if (s.type === 'tea') FX.burst(FX.splash, s.x, s.y + 1.1, s.z, 30);
-    for (const d of s.drinkers) { d.setAction('startled', true); Bubbles.show(d.anchor, pick(['আরে আরে!', 'আমার চা!', 'ইয়া আল্লাহ!']), 1.8); }
+    for (const d of s.drinkers) d.setAction('startled', true);
     const o = s.owner; o.setAction('angry', true); o.look = P.pos;
-    const [who, key, text] = s.info.line;
-    const lines = [{ who, voice: key, text, actor: o }];
-    if (s.info.reply && Math.random() < 0.6) lines.push({ who: 'rider', voice: s.info.reply[0], text: s.info.reply[1], actor: bike.rider });
-    Dialogue.say(lines, { prio: PRIO.collision });
+    Dialogue.say([{ who: 'vendor', voice: 'stall_haire', text: 'হায়রে!!! সব শেষ আমার!', actor: o }], { prio: PRIO.collision });
     Mission.damage(5, 'stall'); Mission.rep(-0.15);
     Peds.notice(s.x, s.z, 22);
-    const L = World.L;
-    const chaseP = L.legacy && s.type === 'tea' ? 1 : s.info.chase + (L.diff - 1) * 0.08;
-    s.willChase = Math.random() < chaseP;
+    s.willChase = true; // the stall owner always comes after the rider (STALL_CHASE_T seconds later)
   },
   parkedHit(pk) {
     pk.cd = 4; pk.tip = 1; pk.t = 0;
     const ps = Sound.positional(pk.v.root.position);
     if (pk.kind === 'rickshaw') SFX.rickshaw(ps.pan); else SFX.metalStall();
     P.v *= 0.5; P.shake = Math.max(P.shake, 0.3);
-    Bubbles.show(bike.rider.anchor, '😬', 1, 'emote');
     Mission.damage(3, 'parked'); Mission.rep(-0.05);
   },
   pedHit(p, speed) {
     const h = p.h; if (p.state === 'stumble' || p.kind === 'chaser') return;
-    SFX.pedestrian();
-    p.state = 'stumble'; p.t = 2.4; h.setAction('stumble', true); h.root.rotation.y = Math.atan2(P.x - p.pos.x, P.z - p.pos.z);
-    FX.burst(FX.stars, p.pos.x, 1.4, p.pos.z, 14);
-    Bubbles.show(h.anchor, '💫', 2, 'emote');
-    Toast.show('সাবধান! পথচারীকে ধাক্কা — রেটিং কমছে।', 'warn', 3);
+    if (!Clips.play('aye')) SFX.pedestrian();
+    // knocked flat: lies on the ground ~9 s, then gets up (the chase starts at 10 s)
+    p.state = 'stumble'; p.t = PED_DOWN_T; p.downT = PED_DOWN_T; h.setAction('stumble', true); h.root.rotation.y = Math.atan2(P.x - p.pos.x, P.z - p.pos.z);
+    FX.burst(FX.stars, p.pos.x, 1.0, p.pos.z, 14);
     Mission.damage(6, 'ped'); Mission.rep(-0.4); Mission.pedHits++;
     Peds.notice(p.pos.x, p.pos.z, 18);
-    Dialogue.say([{ who: 'ped', voice: 'npc_kotha', text: 'এইডা কোনো কথা হইলো?', actor: h }], { prio: PRIO.collision, key: 'pedline', cd: 20 });
-    const now = Events.now; this.pedHitsRecent = this.pedHitsRecent.filter((t) => now - t < 45); this.pedHitsRecent.push(now);
-    if (this.pedHitsRecent.length >= 2 && !Chase.active && !GameOver.active) { this.pedHitsRecent = []; setTimeout(() => { if (!Chase.active && playing()) Chase.start(h, 2 + Math.floor(World.L.diff / 2), p.pos.x, p.pos.z, 'ped'); }, 1500); }
+    if (!GameOver.active) { this.pending.push({ p, t: PED_LINE_T, what: 'line' }); this.pending.push({ p, t: PED_CHASE_T, what: 'chase' }); }
     void speed;
   },
   vehicleHit(a, speed) {
@@ -3965,7 +4086,22 @@ const Chaos = {
     Mission.rep(-0.1);
     void speed;
   },
+  pending: [],
   update(dt) {
+    for (let i = this.pending.length - 1; i >= 0; i--) {
+      const q = this.pending[i]; q.t -= dt; if (q.t > 0) continue;
+      this.pending.splice(i, 1);
+      if (!playing() || GameOver.active || q.p.kind === 'chaser') continue;
+      if (q.what === 'line') {
+        // the knocked-down person shouts; the two lines alternate between incidents
+        const L = PED_LINES[this.lineIdx++ % PED_LINES.length];
+        Dialogue.say([{ who: 'angry', voice: L[0], text: L[1], actor: q.p.h }], { prio: PRIO.crowd });
+        continue;
+      }
+      // gets up and chases, unless the rider is already far away
+      if (Math.hypot(P.x - q.p.pos.x, P.z - q.p.pos.z) > 45) { q.p.h.setAction('angry', true); q.p.react = 2; continue; }
+      Chase.start(q.p.h, 0, q.p.pos.x, q.p.pos.z, 'ped', null, q.p);
+    }
     for (const s of Stalls.list) {
       for (const k of s.parts) {
         if (!k.active) continue;
@@ -3975,9 +4111,10 @@ const Chaos = {
       if (s.state === 'hit') {
         s.t += dt; const o = s.owner;
         o.faceTo(P.x, P.z, 8, dt);
-        if (s.t > 1.6) {
+        if (s.t > STALL_CHASE_T) {
           s.state = 'cool';
-          if (s.willChase && !Chase.active && !GameOver.active && playing()) Chase.start(o, World.L.diff >= 3 ? 2 : 1, s.x, s.z, 'stall', s);
+          const near = Math.hypot(P.x - o.root.position.x, P.z - o.root.position.z) < 45;
+          if (s.willChase && near && !GameOver.active && playing()) Chase.start(o, Chase.active ? 0 : 1, s.x, s.z, 'stall', s);
           else { o.setAction('dismiss', true); Events.end('stall'); }
         }
       } else if (s.state === 'cool') {
@@ -3999,31 +4136,41 @@ const Chaos = {
     const o = s.owner; o.root.position.set(s.ownerHome.x, groundH(s.ownerHome.x, s.ownerHome.z), s.ownerHome.z); o.root.rotation.y = s.ownerHome.yaw; o.setAction(s.type === 'tea' || s.type === 'jhalmuri' ? 'stir' : 'idle'); o.look = null;
     for (const d of s.drinkers) { d.root.position.set(d.home.x, s.y, d.home.z); d.root.rotation.y = d.home.yaw; d.setAction('sit'); }
   },
-  resetAll() { for (const s of Stalls.list) this.resetStall(s); for (const pk of Parked.list) { pk.t = 0; pk.tip = 0; pk.v.root.rotation.z = 0; } this.incidents = 0; this.pedHitsRecent = []; },
+  resetAll() { for (const s of Stalls.list) this.resetStall(s); for (const pk of Parked.list) { pk.t = 0; pk.tip = 0; pk.v.root.rotation.z = 0; } this.incidents = 0; this.pedHitsRecent = []; this.pending = []; },
 };
 
 /* =====================================================================
    CHASE + GAME OVER
    ===================================================================== */
+const CHASE_ESCAPE = 14; // metres: stay this far ahead for a moment and they give up
 const Chase = {
-  active: false, chasers: [], t: 0, farT: 0, said: {}, stall: null, ui: false,
-  start(leader, extra, x, z, why, stall) {
-    this.active = true; this.t = 0; this.farT = 0; this.said = {}; this.stall = stall || null; this.chasers = [];
-    const add = (h, home) => { const c = { h, home, pos: h.root.position, r: 0.45, w: 0.45, isPerson: true, speed: World.L.chaseSpeed * rand(0.94, 1.06) }; h.chasing = true; h.setAction('chase'); h.speed = c.speed; h.look = null; this.chasers.push(c); OBSTACLES.push(c); };
-    add(leader, { x: leader.root.position.x, z: leader.root.position.z, yaw: leader.root.rotation.y });
-    const cands = Peds.list.filter((p) => p.kind !== 'guard' && p.state !== 'stumble' && p.h !== leader && Math.hypot(p.pos.x - x, p.pos.z - z) < 26).sort((p, q) => Math.hypot(p.pos.x - x, p.pos.z - z) - Math.hypot(q.pos.x - x, q.pos.z - z));
-    for (let i = 0; i < Math.min(extra, cands.length); i++) { const p = cands[i]; p.prevKind = p.kind; p.kind = 'chaser'; add(p.h, { x: p.pos.x, z: p.pos.z, yaw: p.h.root.rotation.y, ped: p }); }
+  active: false, chasers: [], t: 0, farT: 0, said: {}, stall: null, ui: false, shown: -1, escD: CHASE_ESCAPE,
+  /* add one person (optionally a pedestrian record) to the chase */
+  join(h, ped) {
+    if (this.chasers.some((c) => c.h === h)) return;
+    const home = ped ? { x: ped.pos.x, z: ped.pos.z, yaw: h.root.rotation.y, ped } : { x: h.root.position.x, z: h.root.position.z, yaw: h.root.rotation.y };
+    if (ped) { ped.prevKind = ped.kind === 'chaser' ? ped.prevKind : ped.kind; ped.kind = 'chaser'; ped.state = 'idle'; ped.react = 0; }
+    const c = { h, home, pos: h.root.position, r: 0.45, w: 0.45, isPerson: true, speed: World.L.chaseSpeed * rand(0.94, 1.06) };
+    h.chasing = true; h.setAction('chase', true); h.speed = c.speed; h.look = null; h.anchor = h.anchor || anchorOf(h);
+    this.chasers.push(c); OBSTACLES.push(c);
+  },
+  start(leader, extra, x, z, why, stall, leaderPed) {
+    if (this.active) { this.join(leader, leaderPed); this.farT = 0; return; }
+    this.active = true; this.t = 0; this.farT = 0; this.said = {}; this.stall = stall || null; this.chasers = []; this.shown = -1;
+    this.join(leader, leaderPed);
+    // they have to close in first: escaping means getting clearly further away than where they started
+    this.escD = clamp(Math.hypot(P.x - leader.root.position.x, P.z - leader.root.position.z) + 6, CHASE_ESCAPE, 50);
+    const cands = Peds.list.filter((p) => p.kind !== 'guard' && p.kind !== 'chaser' && p.state !== 'stumble' && p.h !== leader && Math.hypot(p.pos.x - x, p.pos.z - z) < 26).sort((p, q) => Math.hypot(p.pos.x - x, p.pos.z - z) - Math.hypot(q.pos.x - x, q.pos.z - z));
+    for (let i = 0; i < Math.min(extra, cands.length); i++) this.join(cands[i].h, cands[i]);
     if (Events.active) Events.active = null;
     Events.active = 'chase';
-    Banner.show('ওহ না! লোকজন পেছনে লেগেছে!', 'RUN! CHASE STARTED', '!', 'danger');
-    $('chaseBox').classList.remove('hidden');
+    $('chaseBig').classList.remove('hidden');
     Music.play('chase'); SFX.footsteps(6);
-    Dialogue.say([{ who: 'angry', voice: 'npc_thasaya', text: 'তোরে যদি আমি একা পাই, একদম থাসায়া ধরমু!', actor: leader }], { prio: PRIO.crowd });
-    if (this.chasers.length >= 2) setTimeout(() => { if (this.active && !GameOver.active) Dialogue.say([{ who: 'rider', voice: 'rider_mother', text: 'ওরা আমারে মারতে চায় মা, ওরা আমারে বাঁচতে দেবে না!', actor: bike.rider }], { prio: PRIO.crowd }); }, 2800);
+    Dialogue.say([{ who: 'angry', voice: 'npc_khaiya', text: 'তোরে যদি একা পাই, একদম খাইয়া দিমু!', actor: leader }], { prio: PRIO.crowd });
     void why;
   },
   update(dt) {
-    if (!this.active) { if (this.ui) { this.ui = false; $('chaseBox').classList.add('hidden'); } return; }
+    if (!this.active) { if (this.ui) { this.ui = false; $('chaseBig').classList.add('hidden'); } return; }
     this.ui = true; this.t += dt;
     let nearest = 1e9, ncm = null;
     for (const c of this.chasers) {
@@ -4033,23 +4180,26 @@ const Chase = {
       const dx = tx - pos.x, dz = tz - pos.z, d = Math.hypot(dx, dz);
       const real = Math.hypot(P.x - pos.x, P.z - pos.z);
       if (real < nearest) { nearest = real; ncm = c; }
-      if (d > 0.3) { const st = Math.min(d, c.speed * dt); pos.x += dx / d * st; pos.z += dz / d * st; h.root.rotation.y += angDiff(h.root.rotation.y, Math.atan2(dx, dz)) * (1 - Math.exp(-10 * dt)); }
+      if (d > 0.3 && !(c.stunned > 0)) { const st = Math.min(d, c.speed * dt); pos.x += dx / d * st; pos.z += dz / d * st; h.root.rotation.y += angDiff(h.root.rotation.y, Math.atan2(dx, dz)) * (1 - Math.exp(-10 * dt)); }
       resolveCircle(pos, 0.35, false);
       pos.y = damp(pos.y, groundH(pos.x, pos.z), 12, dt);
-      if (real < 1.25 && playing() && !GameOver.active) {
+      if (real < 1.25 && playing() && !GameOver.active && !(c.stunned > 0)) {
         if (Math.abs(P.v) < 7) { GameOver.caught(c); return; }
         SFX.bonk(); h.setAction('stumble', true); c.stunned = 1.4;
       }
-      if (c.stunned > 0) { c.stunned -= dt; if (c.stunned <= 0) h.setAction('chase'); pos.x -= dx / (d || 1) * c.speed * dt; pos.z -= dz / (d || 1) * c.speed * dt; }
+      if (c.stunned > 0) { c.stunned -= dt; if (c.stunned <= 0) h.setAction('chase', true); }
     }
-    if (ncm && nearest < 4.5 && !this.said.heart && Math.abs(P.v) < 5) { this.said.heart = true; Dialogue.say([{ who: 'rider', voice: 'rider_heart', text: 'ডোন্ট লুক অ্যাট মি... আই অ্যাম এ হার্ট পেশেন্ট!', actor: bike.rider }], { prio: PRIO.crowd }); }
+    // standing still right next to them is enough to get grabbed, even if a railing or stall is in between
+    if (ncm && nearest < 2.6 && Math.abs(P.v) < 2 && playing() && !GameOver.active) { this.closeT = (this.closeT || 0) + dt; if (this.closeT > 1.5) { this.closeT = 0; GameOver.caught(ncm); return; } } else this.closeT = 0;
     if (Math.floor(this.t * 2.5) !== Math.floor((this.t - dt) * 2.5)) SFX.footsteps(1);
-    const escape = 38;
-    if (nearest > escape) this.farT += dt; else this.farT = Math.max(0, this.farT - dt * 0.5);
-    $('chaseCount').textContent = toBn(this.chasers.length) + ' জন তাড়া করছে';
-    $('chaseDist').textContent = 'সবচেয়ে কাছে: ' + toBn(Math.round(nearest)) + ' মি';
-    $('chaseBar').style.width = (clamp(nearest / escape, 0, 1) * 100).toFixed(0) + '%';
-    if (this.farT > 2.5 || (this.t > 32 && nearest > 18)) this.end(true);
+    // escape: once the rider is a little way ahead for a moment, they cannot catch up any more
+    if (nearest < this.escD - 6) this.escD = Math.max(CHASE_ESCAPE, nearest + 6);
+    if (nearest > this.escD) this.farT += dt; else this.farT = 0;
+    const n = this.chasers.length;
+    if (n !== this.shown) { this.shown = n; $('chaseBigN').textContent = toBn(n); }
+    const nd = Math.round(nearest); if (nd !== this.shownD) { this.shownD = nd; $('chaseBigD').textContent = toBn(nd); }
+    $('chaseBar').style.width = (clamp(nearest / this.escD, 0, 1) * 100).toFixed(0) + '%';
+    if (this.farT > 1.2 || nearest > this.escD * 1.7 || (this.t > 30 && nearest > 8)) this.end(true);
   },
   end(escaped) {
     this.active = false; Music.play('city');
@@ -4059,9 +4209,10 @@ const Chase = {
       Returners.add(h, c.home);
     }
     this.chasers = [];
+    $('chaseBig').classList.add('hidden');
     if (Events.active === 'chase') Events.active = null; Events.cd = 6;
     if (this.stall) Events.end('stall');
-    if (escaped) { Toast.show('বাঁচা গেল! পালাতে পেরেছেন।', 'ok', 3); Bubbles.show(bike.rider.anchor, '😮‍💨', 1.4, 'emote'); }
+    if (escaped) { Dialogue.say([{ who: 'rider', voice: 'rider_bachlam', text: 'যাক, আজকের মতো বাঁচলাম।', actor: bike.rider }], { prio: PRIO.crowd }); }
   },
 };
 /* people walking back to where they were after a chase */
@@ -4090,30 +4241,41 @@ const GameOver = {
   caught(c) {
     if (this.active) return;
     this.active = true; this.kind = 'caught'; this.t = 0; P.locked = true; P.v = 0;
-    Music.stop(); Dialogue.clear();
-    const all = Chase.chasers.slice(); Chase.active = false; $('chaseBox').classList.add('hidden');
-    all.forEach((q, i) => { const a = (i / Math.max(1, all.length)) * PI * 2 + P.yaw; q.target = { x: P.x + Math.sin(a) * 1.3, z: P.z + Math.cos(a) * 1.3 }; q.h.setAction('angry', true); });
+    Music.stop(); Dialogue.clear(); Prompt.hide(); $('marker').classList.add('hidden');
+    const all = Chase.chasers.slice(); Chase.active = false; $('chaseBig').classList.add('hidden');
+    // the bike tips over and the rider lands on the road next to it
+    P.fall = 1e6; P.fallDir = 1;
+    const R = bike.rider, side = { x: Math.cos(P.yaw), z: -Math.sin(P.yaw) };
+    R.root.parent = null; R.root.position.set(P.x + side.x * 1.1, 0.02, P.z + side.z * 1.1); R.root.rotation.set(0, P.yaw + PI / 2, 0);
+    R.setAction('down', true);
+    const rx = R.root.position.x, rz = R.root.position.z;
+    this.spot = { x: rx, z: rz };
+    all.forEach((q, i) => { const a = (i / Math.max(1, all.length)) * PI * 2 + P.yaw + 0.6; q.target = { x: rx + Math.sin(a) * 1.05, z: rz + Math.cos(a) * 1.05 }; q.h.setAction('punch', true); q.h.t = i * 0.13; });
     this.chasers = all;
-    bike.rider.setAction('rideFlail', true);
-    SFX.caught(); FX.burst(FX.dust, P.x, 0.6, P.z, 120); FX.burst(FX.stars, P.x, 1.8, P.z, 40);
-    Bubbles.show(bike.rider.anchor, 'ধুপ-ধাপ! 💥', 1.8, 'emote');
+    if (Clips.play('fight')) this.clip = true; else { this.clip = false; SFX.caught(); SFX.beating(this.BEAT); }
     Banner.show('ধুপ-ধাপ!', 'CAUGHT BY THE CROWD', '!', 'danger');
     const leader = c.h; leader.anchor = leader.anchor || anchorOf(leader);
     this.steps = [
-      [1.9, () => { bike.rider.setAction('rideShrug', true); Dialogue.say([{ who: 'angry', voice: 'npc_city', text: 'এবার বুঝছেন, ঢাকা শহর কার!', actor: leader }, { pause: 0.8 }, { who: 'rider', voice: 'rider_shesh', text: 'আমি আইজকা শ্যাষ!', actor: bike.rider, onStart: () => bike.rider.setAction('rideStop', true) }], { prio: PRIO.gameover, lock: true }); }],
-      [8.2, () => this.show()],
+      [this.BEAT + 0.2, () => { all.forEach((q) => q.h.setAction('angry', true)); Dialogue.say([{ who: 'rider', voice: 'rider_gesi', text: 'আজকে গেছি রে!', actor: bike.rider }], { prio: PRIO.gameover, lock: true }); }],
+      [this.BEAT + 3.2, () => this.show()],
     ];
+  },
+  BEAT: 4.6,
+  /* put the rider back on the bike (used on restart) */
+  remount() {
+    const R = bike.rider; R.root.parent = bike.body; R.root.position.set(0, 0, -0.22); R.root.rotation.set(0, 0, 0); R.setAction('ride', true);
+    Clips.stop('fight');
   },
   fail(reason) {
     if (this.active) return;
     this.active = true; this.kind = reason; this.t = 0; P.locked = true;
     Music.stop(); if (Chase.active) Chase.end(false);
-    this.steps = [[0.4, () => Dialogue.say([{ who: 'rider', voice: 'rider_kotha', text: 'এইডা কোনো কথা হইলো?', actor: bike.rider }], { prio: PRIO.mission })], [2.8, () => this.show()]];
+    this.steps = [[2.0, () => this.show()]];
   },
   show() {
     SFX.gameOver(); Dialogue.locked = false;
     const t = $('goTitle'), s = $('goSub');
-    if (this.kind === 'caught') { t.textContent = 'GAME OVER'; s.textContent = 'লোকজন ধরে ফেলেছে! — "আমি আইজকা শ্যাষ!"'; }
+    if (this.kind === 'caught') { t.textContent = 'GAME OVER'; s.textContent = 'লোকজন ধরে ফেলেছে!'; }
     else if (this.kind === 'parcel') { t.textContent = 'MISSION FAILED'; s.textContent = 'পার্সেল পুরো নষ্ট হয়ে গেছে! সাবধানে চালাতে হবে।'; }
     else { t.textContent = 'MISSION FAILED'; s.textContent = 'ডেলিভারি ব্যর্থ হয়েছে।'; }
     showOverlay('gameover');
@@ -4126,11 +4288,18 @@ const GameOver = {
       const pos = q.h.root.position, tg = q.target; if (!tg) continue;
       const dx = tg.x - pos.x, dz = tg.z - pos.z, d = Math.hypot(dx, dz);
       if (d > 0.05) { pos.x += dx * Math.min(1, dt * 4); pos.z += dz * Math.min(1, dt * 4); }
-      q.h.faceTo(P.x, P.z, 10, dt);
-      if (this.t < 1.8 && Math.random() < dt * 6) FX.burst(FX.dust, P.x + rand(-1, 1), 0.5, P.z + rand(-1, 1), 10);
+      const sp = this.spot || P; q.h.faceTo(sp.x, sp.z, 10, dt);
+      if (this.t < this.BEAT && Math.random() < dt * 14) FX.burst(FX.dust, sp.x + rand(-0.9, 0.9), rand(0.3, 1.2), sp.z + rand(-0.9, 0.9), 14);
+    }
+    if (this.kind === 'caught' && this.t < this.BEAT) {
+      P.shake = Math.max(P.shake, 0.35);
+      if (Math.floor(this.t * 3.2) !== Math.floor((this.t - dt) * 3.2)) {
+        FX.burst(FX.stars, (this.spot || P).x, 0.9, (this.spot || P).z, 10);
+        Bubbles.show(bike.rider.anchor, pick(['ধুপ!', 'ধাপ!', 'ঢিশুম!', 'আউ!', 'ধুম!']), 0.5, 'emote');
+      }
     }
   },
-  reset() { this.active = false; this.steps = []; this.chasers = []; hideOverlay('gameover'); },
+  reset() { if (this.kind === 'caught' && this.active) this.remount(); this.active = false; this.steps = []; this.chasers = []; this.spot = null; hideOverlay('gameover'); },
 };
 
 /* =====================================================================
@@ -4165,9 +4334,8 @@ const RickEvent = {
     if (k.driver) { k.driver.setAction('pedal'); k.driver.look = null; }
     this.ob.disabled = false; this.ob.pos.set(this.from.x, 0, this.from.z);
     this.active = true; this.phase = 'enter'; this.t = 0; this.firstDone = true;
-    Events.begin('rickshaw', 'হঠাৎ রিকশা!', 'RICKSHAW ENCOUNTER', '!');
-    const ps = Sound.positional(this.ob.pos); Sound.bell(Math.max(0.6, ps.vol), ps.pan);
-    if (k.driver) Bubbles.show(k.driver.anchor, 'ক্রিং ক্রিং!', 1.4, 'emote');
+    Events.begin('rickshaw');
+    if (!Clips.play('bell')) { const ps = Sound.positional(this.ob.pos); Sound.bell(Math.max(0.6, ps.vol), ps.pan); }
     return true;
   },
   update(dt) {
@@ -4187,7 +4355,6 @@ const RickEvent = {
         const lines = [{ who: 'rickshaw', voice: 'rick_road', text: 'ও ভাই! রাস্তা কি আপনার একার?', actor: k.driver }];
         if (Math.random() < 0.6) lines.push({ who: 'rider', voice: 'rider_side', text: 'মামা, একটু সাইড দেন!', actor: bike.rider });
         Dialogue.say(lines, { prio: PRIO.collision });
-        const ps = Sound.positional(pos); Sound.bell(Math.max(0.5, ps.vol), ps.pan);
         bike.rider.setAction('rideWave'); setTimeout(() => { if (bike.rider.action === 'rideWave') bike.rider.setAction('ride'); }, 2600);
       }
     } else if (this.phase === 'block') {
@@ -4298,9 +4465,9 @@ const Nav = {
   wrongTurn() {
     this.total0 = 0; this.recompute();
     if (this.warnCd > 0) return; this.warnCd = 8;
-    Toast.show('ভুল রাস্তায় চলে গেছেন, নতুন রাস্তা দেখানো হচ্ছে!', 'warn', 3.5); SFX.warn();
+    // shown inside the navigation panel only (no extra pop-up)
+    SFX.warn(); this.wrongUntil = this.t + 3;
     $('navPanel').classList.add('wrong'); setTimeout(() => $('navPanel').classList.remove('wrong'), 1600);
-    Dialogue.say([{ who: 'rider', voice: 'rider_lost', text: 'আরে! এই রাস্তা আবার কই আইলাম!', actor: bike.rider }], { prio: PRIO.collision, key: 'lost', cd: 35 });
   },
   draw(R) {
     const M = this.meshes, col = hex(NAV_COLOR[R.turn] || '#33e1ff');
@@ -4343,7 +4510,7 @@ const Nav = {
       $('navIcon').style.transform = 'rotate(' + rot + 'deg)'; $('navIcon').dataset.kind = turn;
       panel.style.setProperty('--nav', NAV_COLOR[turn]);
     }
-    $('navText').textContent = NAV_TEXT[turn];
+    $('navText').textContent = this.wrongUntil > this.t ? 'ভুল রাস্তা! নতুন রুট দেখানো হচ্ছে' : NAV_TEXT[turn];
     const d = Math.round(R.node && !R.direct ? R.dTurn : R.remain);
     $('navDist').textContent = turn === 'here' ? 'থামুন' : d < 12 ? 'এখনই' : toBn(d) + ' মি' + (R.node ? ' পরে' : '');
     $('navProg').style.width = (clamp(1 - R.remain / Math.max(1, this.total0), 0, 1) * 100).toFixed(0) + '%';
@@ -4431,16 +4598,13 @@ function impact(hit, kind, agent) {
     FX.burst(FX.dust, P.x, 0.3, P.z, 18);
     if (agent) Chaos.vehicleHit(agent, sp); else Sound.crash(Math.min(1, sp / 12));
     Mission.crashes++; Mission.damage(Math.round(sp * 1.2), 'crash');
-    if (sp > 7 && Math.random() < 0.4) Bubbles.show(bike.rider.anchor, pick(['উফ্‌!', 'সরি সরি!', '😵']), 1.4, 'emote');
   }
 }
 function bikeFall(sp) {
   P.fall = 2.2; P.fallDir = P.steer >= 0 ? -1 : 1; P.v = Math.sign(P.v) * Math.min(Math.abs(P.v), 7);
   SFX.bikeFall(); P.shake = 1; bike.rider.setAction('rideFlail', true);
   FX.burst(FX.dust, P.x, 0.3, P.z, 60); FX.burst(FX.stars, P.x, 1.5, P.z, 20);
-  Bubbles.show(bike.rider.anchor, '💫', 2, 'emote');
   Mission.crashes++; Mission.damage(20, 'fall'); Mission.rep(-0.2);
-  Toast.show('বাইক উল্টে গেল! পার্সেলের ক্ষতি হয়েছে।', 'warn', 3);
   void sp;
 }
 function updatePlayer(dt) {
@@ -4469,7 +4633,7 @@ function updatePlayer(dt) {
   const ox = P.x, oz = P.z;
   P.x += Math.sin(P.yaw) * v * dt; P.z += Math.cos(P.yaw) * v * dt;
   const moved = Math.hypot(P.x - ox, P.z - oz); P.travelled += moved;
-  if (playing() && World.L.fuel < 100) { P.fuel = Math.max(0, P.fuel - moved / 22); if (P.fuel < 15 && !P.fuelWarned) { P.fuelWarned = true; Toast.show('তেল প্রায় শেষ! পেট্রোল পাম্পে গিয়ে E চাপুন (মিনিম্যাপে লাল ⛽)', 'warn', 5); Dialogue.say([{ who: 'rider', voice: 'rider_fuel', text: 'এখন তেল শেষ হওয়ার আর টাইম পাইল না!', actor: bike.rider }], { prio: PRIO.collision, key: 'fuel', cd: 60 }); } }
+  if (playing() && World.L.fuel < 100) { P.fuel = Math.max(0, P.fuel - moved / 22); if (P.fuel < 15 && !P.fuelWarned) { P.fuelWarned = true; Toast.show('⛽ তেল প্রায় শেষ — পাম্পে যান', 'warn', 4); } }
   P.pos.set(P.x, 0, P.z);
   const hit = resolveCircle(P.pos, P.r); if (hit) impact(hit, hit.tag);
   for (const o of OBSTACLES) {
@@ -4520,10 +4684,8 @@ function potholeHit(ph) {
   SFX.pothole(); FX.burst(FX.mud, ph.x, 0.15, ph.z, 45);
   Mission.damage(5, 'pothole');
   if (Events.can('pothole')) {
-    Events.begin('pothole', 'গর্তে পড়লো বাইক!', 'POTHOLE SURPRISE', '!'); Events.potholeT = 2.6;
+    Events.begin('pothole'); Events.potholeT = 2.6;
     bike.rider.setAction('rideFlail', true);
-    Bubbles.show(bike.rider.anchor, '😵', 1.2, 'emote');
-    Dialogue.say([{ who: 'rider', voice: 'rider_moon', text: 'ও মা! রাস্তা নাকি চাঁদের জমিন!', actor: bike.rider }], { prio: PRIO.collision, key: 'pothole', cd: 25 });
   }
 }
 function recoverBike() {
@@ -4533,7 +4695,6 @@ function recoverBike() {
   const d = { x: e.dx * fwd, z: e.dz * fwd }, left = { x: -d.z, z: d.x }, lane = r.lanes[r.lanes.length - 1];
   const p = roadPt(r, t);
   P.x = p.x + left.x * lane; P.z = p.z + left.z * lane; P.yaw = Math.atan2(d.x, d.z); P.v = 0; P.steer = 0; P.fall = 0;
-  Toast.show('বাইক রাস্তায় ফেরানো হলো', '', 2);
 }
 
 /* =====================================================================
@@ -4559,7 +4720,7 @@ const Flight = {
 };
 const CUST_LOOKS = [
   { shirt: '#1e88e5', pants: '#37474f', sandals: true },
-  { shirt: '#00897b', tunic: true, pants: '#f5f5f5', orna: '#ffca28', longHair: true, sandals: true, skin: '#b97c52' },
+  { shirt: '#00897b', pants: '#263238', sandals: true, skin: '#b97c52', mustache: true },
   { shirt: '#f5f5f5', tunic: true, pants: '#f5f5f5', cap: 'tupi', beard: true, sandals: true, skin: '#7a4b30' },
 ];
 const WORKER_LOOKS = [
@@ -4620,7 +4781,6 @@ const Mission = {
     w.setAction('handover', true); w.look = P.pos;
     parcel.parent = w.carry; parcel.position.set(0, -0.1, 0); parcel.rotation.set(0, 0, 0); parcel.scaling.setAll(0.01); parcel.setEnabled(true);
     Sound.pop();
-    Dialogue.say([{ who: 'worker', voice: 'worker_handover', text: 'এই যে ভাই! পার্সেলটা নিয়ে যান!', actor: w }], { prio: PRIO.mission });
     Seq.run([
       [0.05, () => { const grow = setInterval(() => { parcel.scaling.scaleInPlace(1.35); if (parcel.scaling.x >= 1) { parcel.scaling.setAll(1); clearInterval(grow); } }, 16); }],
       [0.9, () => {
@@ -4628,13 +4788,11 @@ const Mission = {
         Flight.start(parcel, from, () => bike.slot.getAbsolutePosition(), 0.85, 0.9, () => {
           parcel.parent = bike.slot; parcel.position.set(0, 0, 0); parcel.rotation.set(0, 0, 0); parcel.scaling.setAll(1);
           bike.strapMeshes.forEach((m) => m.setEnabled(true)); P.boxShake = 0.6; Sound.chime();
-          Toast.show('পার্সেল নেওয়া হয়েছে! কাস্টমারের কাছে যান — ' + o.cfg.cust, 'ok', 4);
         });
         w.setAction('idle');
       }],
       [2.0, () => {
-        if (Math.random() < 0.6) Dialogue.say([{ who: 'rider', voice: 'rider_ok', text: 'ঠিক আছে মামা, যাচ্ছি!', actor: bike.rider }], { prio: PRIO.mission });
-        this.state = 'deliver'; this.pickT = 0; this.cond = 100; this.crashes = 0; this.pedHits = 0; this.incidents0 = Chaos.incidents; this.pickupTravel = P.travelled; setStatus('deliver');
+        this.state = 'deliver'; this.nearbySaid = false; this.pickT = 0; this.cond = 100; this.crashes = 0; this.pedHits = 0; this.incidents0 = Chaos.incidents; this.pickupTravel = P.travelled; setStatus('deliver');
         const c = this.customer(), cs = lotSpot(o.cust); marker.set('#3fe0d0');
         $('mTargetLab').textContent = 'কাস্টমার:'; $('mTarget').textContent = o.cfg.cust + ' — ' + o.cfg.place;
         $('markerPin').className = 'pin'; $('markerArrow').className = 'arrow';
@@ -4643,7 +4801,6 @@ const Mission = {
         const routeLen = Nav.route ? Nav.route.remain : Math.hypot(cs.x - P.x, cs.z - P.z) * 1.4;
         this.limit = Math.round(routeLen / 9 * World.L.timeFactor + 18);
         $('condBox').classList.remove('hidden');
-        Banner.show('নতুন গন্তব্য: ' + o.cfg.cust, 'সময়: ' + toBn(fmtTime(this.limit)) + ' · DESTINATION ACTIVE', '➜');
       }],
       [2.6, () => { P.locked = false; w.setAction('wave'); setTimeout(() => { if (w.action === 'wave') w.setAction('idle'); }, 2500); }],
     ]);
@@ -4652,14 +4809,12 @@ const Mission = {
     const c = this.customer(), o = this.order();
     this.state = 'dropoff'; P.locked = true; Prompt.hide();
     c.look = P.pos;
-    const late = this.pickT > this.limit, veryLate = this.pickT > this.limit + 25, damaged = this.cond < 50;
-    const g = ['m', 'f', 'e'][o.cfg.look || 0];
+    const late = this.pickT > this.limit, damaged = this.cond < 80;
     const lines = [];
     let mood;
-    if (damaged) { mood = 'angry'; lines.push(g === 'f' ? { who: 'customer', name: o.cfg.cust, voice: 'cust_kotha_f', text: 'এইডা কোনো কথা হইলো?', actor: c } : { who: 'customer', name: o.cfg.cust, voice: 'npc_kotha', text: 'এইডা কোনো কথা হইলো?', actor: c }); }
-    else if (veryLate && /বিরিয়ানি|কাচ্চি|তেহারি|পোলাও/.test(o.cfg.item)) { mood = 'impatient'; lines.push({ who: 'customer', name: o.cfg.cust, voice: 'cust_biryani_' + g, text: 'ভাই, বিরিয়ানি অর্ডার করছি, আপনার জীবনের গল্প না!', actor: c }); }
-    else if (late) { mood = 'impatient'; lines.push({ who: 'customer', name: o.cfg.cust, voice: 'cust_late_' + g, text: 'ভাই, এত দেরি কেন?', actor: c }); if (Math.random() < 0.55) lines.push({ who: 'rider', voice: 'rider_jam', text: 'ঢাকার জ্যাম ভাই, আমার কী দোষ!', actor: bike.rider }); }
-    else { mood = 'happy'; lines.push({ who: 'customer', name: o.cfg.cust, voice: 'cust_ontime_' + g, text: 'এইবার তো ঠিক সময়ে আইছেন!', actor: c }); }
+    if (damaged) { mood = 'angry'; lines.push({ who: 'customer', name: o.cfg.cust, voice: 'cust_damaged', text: 'এইডা কেমন কথা? এইটা আমি খাবো, নাকি কুত্তারে খাওয়াবো?', actor: c }); }
+    else if (late) { mood = 'impatient'; lines.push({ who: 'customer', name: o.cfg.cust, voice: 'cust_late', text: 'এত দেরি মামা, ঠান্ডা হয়ে গেছে সব!', actor: c }); }
+    else { mood = 'happy'; lines.push({ who: 'customer', name: o.cfg.cust, voice: 'cust_ontime', text: 'এইবার তো ঠিক সময়ে আইছেন!', actor: c }); }
     c.setAction(mood === 'happy' ? 'waveBoth' : mood === 'angry' ? 'angry' : 'impatient', true);
     Dialogue.say(lines, { prio: PRIO.customer });
     const talk = lines.reduce((s, l) => s + (VOICE_FILES[l.voice] ? VOICE_FILES[l.voice][1] + 0.5 : 2.2), 0);
@@ -4692,7 +4847,7 @@ const Mission = {
     Progress.data.wallet += total; Progress.data.ratings.push(rating); if (Progress.data.ratings.length > 40) Progress.data.ratings.shift();
     this.results.push({ rating, total, time: this.orderT, cond: Math.round(this.cond) });
     this.state = 'complete'; setStatus('complete'); Nav.clear();
-    if (mood === 'happy') { c.setAction('happyHold', true); Bubbles.show(anchorOf(c, 1.0), '❤', 2.5, 'emote'); }
+    if (mood === 'happy') c.setAction('happyHold', true);
     SFX.success(); setTimeout(() => SFX.coin(), 700);
     const cp = c.root.getAbsolutePosition(); FX.burst(FX.confetti, cp.x, 2.2, cp.z, 160);
     $('bigMoney').textContent = '+৳' + total; $('bigMsg').classList.add('show');
@@ -4715,7 +4870,7 @@ const Mission = {
       $('sRating').textContent = '★'.repeat(Math.floor(rating)) + (rating % 1 ? '½' : '') + '  (' + rating.toFixed(1) + ')';
       $('sBreak').textContent = 'বেস ৳' + base + (timeBonus ? ' + সময় বোনাস ৳' + timeBonus : '') + (safe ? ' + নিরাপদ রাইড ৳' + safe : '') + (dmg ? ' − ক্ষতি ৳' + dmg : '') + (latePen ? ' − দেরি ৳' + latePen : '');
       $('sEarn').textContent = '+৳' + total; $('sTotal').textContent = '৳' + Progress.data.wallet;
-      $('sResult').textContent = !late && this.cond >= 90 && incidents === 0 ? 'দারুণ ডেলিভারি!' : late ? 'দেরিতে ডেলিভারি' : this.cond < 50 ? 'পার্সেল ক্ষতিগ্রস্ত' : 'সময়মতো ডেলিভারি';
+      $('sResult').textContent = !late && this.cond >= 90 && incidents === 0 ? 'দারুণ ডেলিভারি!' : late ? 'দেরিতে ডেলিভারি' : this.cond < 80 ? 'পার্সেল ক্ষতিগ্রস্ত' : 'সময়মতো ডেলিভারি';
       $('sHead').textContent = lastOrder ? 'লেভেল সম্পন্ন! ' + L.name : 'ডেলিভারি সফল!';
       $('sUnlock').classList.toggle('hidden', !unlocked && !(lastOrder && L.id === LEVELS.length));
       if (unlocked) { $('sUnlock').textContent = '🔓 নতুন এলাকা আনলক: লেভেল ' + toBn(unlocked.id) + ' — ' + unlocked.name + '!'; SFX.unlock(); }
@@ -4733,7 +4888,7 @@ const Mission = {
     prevC.root.setEnabled(true); prevC.setAction('happyHold');
     parcel.parent = prevC.carry; parcel.position.set(0, -0.11, 0); parcel.rotation.set(0, 0, 0); parcel.setEnabled(true);
     setTimeout(() => { if (this.customer() !== prevC) { if (parcel.parent === prevC.carry) { parcel.parent = null; parcel.setEnabled(false); } prevC.root.setEnabled(false); } }, 4000);
-    Toast.show('নতুন অর্ডার! ' + this.order().cfg.rest + ' থেকে পার্সেল নিন', '', 4); Sound.chime();
+    Sound.chime();
   },
   update(dt) {
     this.orderT += dt; if (this.state === 'deliver') this.pickT += dt;
@@ -4758,14 +4913,14 @@ const Mission = {
     } else if (this.state === 'dropoff' || this.state === 'complete') c.faceTo(P.x, P.z, 6, dt);
     if (this.state === 'pickup') {
       const w = this.worker(); const d = Math.hypot(w.root.position.x - P.x, w.root.position.z - P.z);
-      if (d < 16 && !this.greeted) { this.greeted = true; Dialogue.say([{ who: 'worker', voice: 'worker_ready', text: 'ভাই, আপনার অর্ডার রেডি!', actor: w }], { prio: PRIO.mission }); }
-      if (d < 16) Prompt.show('রেস্তোরাঁ কর্মী অপেক্ষা করছে', d < 7 ? 'পার্সেল নিতে E চাপুন' : null); else Prompt.hide();
+      if (d < 13 && !this.greeted) { this.greeted = true; Dialogue.say([{ who: 'rider', voice: 'rider_jillu', text: 'ওই জিল্লু, পার্সেলটা দে!', actor: bike.rider }], { prio: PRIO.mission }); }
+      if (d < 7) Prompt.show('', 'পার্সেল নিতে E চাপুন'); else Prompt.hide();
     } else if (this.state === 'deliver') {
-      if (dc < 16 && !this.custGreeted) { this.custGreeted = true; Bubbles.show(c.anchor, 'এই যে! এদিকে!', 2.2); }
-      if (dc < 16) Prompt.show('কাস্টমার অপেক্ষা করছে!', dc < 7 ? 'পার্সেল দিতে E চাপুন' : null); else Prompt.hide();
-      if (this.limit && Math.floor(this.pickT) === this.limit && Math.floor(this.pickT - dt) < this.limit) { Toast.show('সময় শেষ! দ্রুত ডেলিভারি দিন — দেরি হলে টাকা কমবে', 'warn', 4); SFX.warn(); }
+      if (dc < 32 && dc > 9 && !this.nearbySaid) { this.nearbySaid = true; Dialogue.say([{ who: 'rider', voice: 'rider_nearby', text: 'আশেপাশেই তো থাকার কথা... ওইতো, ওইদিক!', actor: bike.rider }], { prio: PRIO.mission }); }
+      if (dc < 7) Prompt.show('', 'পার্সেল দিতে E চাপুন'); else Prompt.hide();
+      if (this.limit && Math.floor(this.pickT) === this.limit && Math.floor(this.pickT - dt) < this.limit) { SFX.warn(); }
     } else Prompt.hide();
-    if (World.pump && World.L.fuel < 100 && P.fuel < 95 && Math.hypot(World.pump.x - P.x, World.pump.z - P.z) < 9 && this.state !== 'handover' && this.state !== 'dropoff') Prompt.show('পেট্রোল পাম্প', 'তেল নিতে E চাপুন (৳৮০)');
+    if (World.pump && World.L.fuel < 100 && P.fuel < 95 && Math.hypot(World.pump.x - P.x, World.pump.z - P.z) < 9 && this.state !== 'handover' && this.state !== 'dropoff') Prompt.show('', 'তেল নিতে E চাপুন (৳৮০)');
     // random rickshaw encounters (one is guaranteed during the first delivery of the level)
     if (this.state === 'deliver' || this.state === 'pickup') {
       this.evTimer = (this.evTimer || 0) + dt;
@@ -4797,10 +4952,10 @@ function setStatus(s) {
   else { el.classList.add('done'); tx.textContent = 'DELIVERY COMPLETED · ডেলিভারি সম্পন্ন'; }
 }
 const Prompt = {
-  vis: false, head: '', key: '',
+  vis: false, head: null, key: null,
   show(head, key) {
     if (!this.vis) { $('prompt').classList.remove('hidden'); this.vis = true; }
-    if (head !== this.head) { $('promptHead').textContent = head; this.head = head; }
+    if (head !== this.head) { $('promptHead').textContent = head; $('promptHead').style.display = head ? '' : 'none'; this.head = head; }
     if (key !== this.key) { this.key = key; if (key) { $('promptText').textContent = key; $('promptKey').style.display = ''; } else $('promptKey').style.display = 'none'; }
   },
   hide() { if (this.vis) { $('prompt').classList.add('hidden'); this.vis = false; } },
@@ -4863,47 +5018,77 @@ function updateCamera(dt) {
 }
 
 /* =====================================================================
-   ATMOSPHERE — time of day, rain, street-light pools, headlight
+   ATMOSPHERE — time of day, street-light pools, headlights
+   Most levels are bright daytime; level 9 is evening and level 10 night.
+   At evening/night every vehicle and the rider get headlights and the
+   ambient light stays high enough that the street remains readable.
    ===================================================================== */
+const ATMOS = {
+  day: { sky: ['#3d86d8', '#79b2e8', '#cfe2f1', '#e4ecef'], fog: '#d9e3ea', fogS: 95, fogE: 340, sun: 1.95, sunC: '#fff4e2', hemi: 0.98, hemiC: '#ffffff', ground: '#8c8374', dir: [-0.5, -1, -0.38], exp: 1.32, shadow: 0.45, lamps: false },
+  evening: { sky: ['#41569a', '#c07a74', '#f6b064', '#f8cf98'], fog: '#e9bd8f', fogS: 85, fogE: 320, sun: 1.45, sunC: '#ffc28a', hemi: 0.82, hemiC: '#fff0e0', ground: '#7a5c4a', dir: [-0.85, -0.5, -0.25], exp: 1.32, shadow: 0.5, lamps: true },
+  night: { sky: ['#0a1430', '#16285a', '#2a3f72', '#3a4d7c'], fog: '#2a3658', fogS: 80, fogE: 320, sun: 0.55, sunC: '#b8c8ff', hemi: 0.85, hemiC: '#a9bde8', ground: '#3c3f52', dir: [-0.3, -1, 0.4], exp: 1.5, shadow: 0.6, lamps: true },
+};
 function applyAtmosphere(L) {
-  const T = { day: { sky: ['#4f86bd', '#86aed0', '#d9d0b8', '#e3d4b1'], fog: '#dbcdb0', sun: 1.65, sunC: '#ffe3bd', hemi: 0.72, ground: '#756654', dir: [-0.5, -1, -0.38], exp: 1.18, lamps: false },
-    evening: { sky: ['#3d4f86', '#b46a6a', '#f2a65a', '#f6c48a'], fog: '#e2a877', sun: 1.35, sunC: '#ffb070', hemi: 0.55, ground: '#6d4a3a', dir: [-0.85, -0.45, -0.25], exp: 1.15, lamps: true },
-    dusk: { sky: ['#1e2650', '#5b3f74', '#c0607a', '#e08a6a'], fog: '#7a5a6a', sun: 0.75, sunC: '#ff9a6a', hemi: 0.5, ground: '#4a3a40', dir: [-0.9, -0.35, -0.2], exp: 1.25, lamps: true },
-    night: { sky: ['#05081a', '#0d1a3a', '#1d2c55', '#2c3a62'], fog: '#1a2440', sun: 0.32, sunC: '#9fb4ff', hemi: 0.42, ground: '#1c2030', dir: [-0.3, -1, 0.4], exp: 1.35, lamps: true } }[L.time] || {};
-  const rain = !!L.rain;
-  const fogC = hex(rain ? '#8a949b' : T.fog);
+  const T = ATMOS[L.time] || ATMOS.day, night = L.time === 'night';
+  const fogC = hex(T.fog);
   scene.fogColor = fogC; scene.clearColor = new B.Color4(fogC.r, fogC.g, fogC.b, 1);
-  scene.fogStart = rain ? 30 : L.time === 'night' ? 60 : 75; World.fogEnd = scene.fogEnd = rain ? 170 : L.time === 'night' ? 250 : 290;
-  sun.intensity = rain ? 0.5 : T.sun; sun.diffuse = hex(rain ? '#d8dde2' : T.sunC);
+  scene.fogStart = T.fogS; World.fogEnd = scene.fogEnd = T.fogE;
+  sun.intensity = T.sun; sun.diffuse = hex(T.sunC);
   const d = V3(T.dir[0], T.dir[1], T.dir[2]).normalize(); sun.direction = d; SUN_DIR.copyFrom(d);
-  hemi.intensity = rain ? 0.8 : T.hemi; hemi.groundColor = hex(T.ground); if (L.time === 'night') hemi.diffuse = hex('#8fa6d8');
-  ip.exposure = T.exp;
-  const sk = rain ? ['#6b7680', '#8a959c', '#a6aeb2', '#b3b9bc'] : T.sky;
+  hemi.intensity = T.hemi; hemi.diffuse = hex(T.hemiC); hemi.groundColor = hex(T.ground);
+  ip.exposure = T.exp; ip.vignetteWeight = 0.7;
+  const sk = T.sky;
   const tex = canvasTex('sky2', 1024, 512, (c, w, h) => {
     const g = c.createLinearGradient(0, 0, 0, h); g.addColorStop(0, sk[0]); g.addColorStop(0.3, sk[1]); g.addColorStop(0.47, sk[2]); g.addColorStop(0.53, sk[3]); g.addColorStop(1, sk[3]);
     c.fillStyle = g; c.fillRect(0, 0, w, h);
-    if (L.time === 'night') { for (let i = 0; i < 400; i++) { c.fillStyle = `rgba(255,255,255,${Math.random() * 0.8})`; c.fillRect(Math.random() * w, Math.random() * h * 0.45, 1.5, 1.5); } c.fillStyle = '#fff6d8'; c.beginPath(); c.arc(w * 0.7, h * 0.18, 18, 0, PI * 2); c.fill(); }
-    for (let i = 0; i < (L.time === 'night' ? 12 : 70); i++) { const x = Math.random() * w, y = 90 + Math.random() * 130, r = 18 + Math.random() * 46; const gg = c.createRadialGradient(x, y, 0, x, y, r); gg.addColorStop(0, rain ? 'rgba(90,96,102,0.6)' : 'rgba(255,255,255,0.5)'); gg.addColorStop(1, 'rgba(255,255,255,0)'); c.fillStyle = gg; c.fillRect(x - r, y - r * 0.6, r * 2, r * 1.2); }
+    if (night) { for (let i = 0; i < 400; i++) { c.fillStyle = `rgba(255,255,255,${Math.random() * 0.8})`; c.fillRect(Math.random() * w, Math.random() * h * 0.45, 1.5, 1.5); } c.fillStyle = '#fff6d8'; c.beginPath(); c.arc(w * 0.7, h * 0.18, 18, 0, PI * 2); c.fill(); }
+    for (let i = 0; i < (night ? 12 : 70); i++) { const x = Math.random() * w, y = 90 + Math.random() * 130, r = 18 + Math.random() * 46; const gg = c.createRadialGradient(x, y, 0, x, y, r); gg.addColorStop(0, 'rgba(255,255,255,0.55)'); gg.addColorStop(1, 'rgba(255,255,255,0)'); c.fillStyle = gg; c.fillRect(x - r, y - r * 0.6, r * 2, r * 1.2); }
   });
   World.skyMat.emissiveTexture = tex;
-  if (rain) { MAT_ASPHALT.specularColor = new B.Color3(0.55, 0.55, 0.58); MAT_ASPHALT.specularPower = 60; MAT_ASPHALT.diffuseColor = new B.Color3(0.72, 0.72, 0.75); MAT_PAVER.diffuseColor = new B.Color3(0.82, 0.82, 0.84); }
-  if (T.lamps) {
-    MAT_LAMP.emissiveColor = hex('#ffcf6a');
-    // soft light pools under the street lamps
-    const pm = new B.StandardMaterial('pool', scene); pm.disableLighting = true; pm.emissiveTexture = TEX.dot; pm.opacityTexture = TEX.dot; pm.emissiveColor = hex(L.time === 'night' ? '#ffcf7a' : '#ffbf6a'); pm.alpha = L.time === 'night' ? 0.55 : 0.32; pm.alphaMode = B.Engine.ALPHA_ADD; pm.zOffset = -6; pm.backFaceCulling = false;
-    const pools = [];
-    for (const lp of LAMP_POS) { const g = B.MeshBuilder.CreateGround('pl', { width: 9, height: 9 }, scene); g.position.set(lp.x, 0.06, lp.z); pools.push(g); }
-    if (pools.length) { const m = B.Mesh.MergeMeshes(pools, true, true); m.material = pm; m.isPickable = false; m.freezeWorldMatrix(); }
-    for (const mt of FACADE_MATS) mt.emissiveColor = hex(L.time === 'night' ? '#2a2216' : '#140f0a');
-    for (const mt of SHOP_MATS) mt.emissiveColor = hex(L.time === 'night' ? '#3a2a18' : '#1a120a');
-    const spot = new B.SpotLight('headlight', V3(0, 1.05, 0.9), V3(0, -0.28, 1).normalize(), 1.0, 6, scene);
-    spot.parent = bike.body; spot.intensity = L.time === 'night' ? 2.2 : 1.2; spot.diffuse = hex('#fff2cc'); spot.range = 40; spot.specular = new B.Color3(0.3, 0.3, 0.3);
-  }
-  if (rain) { Lightning.on = true; ip.exposure = 1.02; if (shadowGen) shadowGen.setDarkness(0.6); }
-  else if (shadowGen) shadowGen.setDarkness(L.time === 'night' ? 0.5 : L.time === 'day' ? 0.28 : 0.36);
+  if (shadowGen) shadowGen.setDarkness(T.shadow);
+  if (!T.lamps) return;
+  MAT_LAMP.emissiveColor = hex('#ffd77a');
+  // bright light pools under every street lamp
+  const pm = new B.StandardMaterial('pool', scene); pm.disableLighting = true; pm.emissiveTexture = TEX.dot; pm.opacityTexture = TEX.dot; pm.emissiveColor = hex(night ? '#ffd890' : '#ffc77a'); pm.alpha = night ? 0.8 : 0.45; pm.alphaMode = B.Engine.ALPHA_ADD; pm.zOffset = -6; pm.backFaceCulling = false;
+  const pools = [];
+  for (const lp of LAMP_POS) { const g = B.MeshBuilder.CreateGround('pl', { width: 13, height: 13 }, scene); g.position.set(lp.x, 0.06, lp.z); pools.push(g); }
+  if (pools.length) { const m = B.Mesh.MergeMeshes(pools, true, true); m.material = pm; m.isPickable = false; m.freezeWorldMatrix(); }
+  // lit windows and shop fronts
+  for (const mt of FACADE_MATS) mt.emissiveColor = hex(night ? '#3c3222' : '#1e170e');
+  for (const mt of SHOP_MATS) mt.emissiveColor = hex(night ? '#5a4226' : '#2a1d10');
+  // the rider's headlight (a real spot light) plus a glow beam on the road
+  const spot = new B.SpotLight('headlight', V3(0, 1.05, 0.9), V3(0, -0.28, 1).normalize(), 1.0, 6, scene);
+  spot.parent = bike.body; spot.intensity = night ? 2.6 : 1.5; spot.diffuse = hex('#fff2cc'); spot.range = 45; spot.specular = new B.Color3(0.3, 0.3, 0.3);
+  vehicleLights(night);
+  // keep the glowing route highlight from overpowering the dark street
+  if (Nav.meshes) Nav.meshes.hm.alpha = night ? 0.12 : 0.17;
+}
+/* Headlights and tail lights for every traffic vehicle and the rider. Uses instanced meshes
+   (one draw call per source) with an additive "beam" decal on the road in front. */
+function vehicleLights(night) {
+  const beamTex = canvasTex('beamTex', 128, 256, (c, w, h) => {
+    const g = c.createLinearGradient(0, h, 0, 0); g.addColorStop(0, 'rgba(255,255,255,0.95)'); g.addColorStop(0.5, 'rgba(255,255,255,0.45)'); g.addColorStop(1, 'rgba(255,255,255,0)');
+    c.fillStyle = g; c.beginPath(); c.moveTo(w * 0.32, h); c.lineTo(w * 0.68, h); c.lineTo(w, 0); c.lineTo(0, 0); c.closePath(); c.fill();
+  });
+  beamTex.hasAlpha = true;
+  const bm = new B.StandardMaterial('beamM', scene); bm.disableLighting = true; bm.emissiveTexture = beamTex; bm.opacityTexture = beamTex; bm.emissiveColor = hex('#fff1c8'); bm.alpha = night ? 0.6 : 0.35; bm.alphaMode = B.Engine.ALPHA_ADD; bm.zOffset = -7; bm.backFaceCulling = false; bm.fogEnabled = false;
+  const beamSrc = B.MeshBuilder.CreateGround('beamSrc', { width: 1, height: 1 }, scene); beamSrc.material = bm; beamSrc.position.y = -500; beamSrc.alwaysSelectAsActiveMesh = true; beamSrc.isPickable = false;
+  const mkDot = (name, col) => { const m = B.MeshBuilder.CreateSphere(name, { diameter: 1, segments: 6 }, scene); const mm = new B.StandardMaterial(name + 'M', scene); mm.disableLighting = true; mm.emissiveColor = hex(col); m.material = mm; m.position.y = -500; m.alwaysSelectAsActiveMesh = true; m.isPickable = false; glowMesh(m); return m; };
+  const headSrc = mkDot('headDot', '#fffbe6'), tailSrc = mkDot('tailDot', '#ff2a1a');
+  const SPEC = { bus: [1.0, 1, 1.15], minibus: [0.95, 1, 1.0], car: [0.72, 1, 0.85], microbus: [0.8, 1, 0.9], van: [0.8, 1, 0.9], cng: [0.85, 1, 0.7], moto: [0.95, 0, 0.55], rickshaw: [1.05, 0, 0.35] };
+  const add = (root, src, x, y, z, sx, sy, sz) => { const m = src.createInstance(src.name + 'I'); m.parent = root; m.position.set(x, y, z); m.scaling.set(sx, sy, sz); m.isPickable = false; return m; };
+  const light = (root, kind, halfL, halfW) => {
+    const [y, pair, beamW] = SPEC[kind] || [0.8, 1, 0.8];
+    const dx = Math.max(0.2, halfW - 0.28), r = kind === 'bus' || kind === 'minibus' ? 0.22 : 0.16;
+    if (pair) { for (const sx of [-dx, dx]) { add(root, headSrc, sx, y, halfL + 0.04, r, r, 0.08); add(root, tailSrc, sx, y * 0.95, -halfL - 0.04, r * 0.8, r * 0.8, 0.06); } }
+    else { add(root, headSrc, 0, y, halfL + 0.05, r * (kind === 'rickshaw' ? 0.8 : 1), r, 0.08); add(root, tailSrc, 0, y * 0.9, -halfL - 0.04, r * 0.7, r * 0.7, 0.06); }
+    const len = kind === 'rickshaw' ? 5 : kind === 'moto' ? 8 : 12;
+    add(root, beamSrc, 0, 0.07, halfL + len / 2, (halfW * 2 + 1) * beamW + 1, 1, len);
+  };
+  for (const a of Traffic.list) light(a.v.root, a.kind, a.v.halfL, a.v.halfW);
+  light(bike.root, 'moto', 1.0, 0.4);
 }
 const LAMP_POS = [];
-const Lightning = { on: false, t: 8, flash: 0, update(dt) { if (!this.on) return; this.t -= dt; if (this.t <= 0) { this.t = rand(10, 22); this.flash = 0.25; setTimeout(() => { if (Sound.ready) Sound.noise(2.5, 0.35, 120, 0.6, 0, 0, 'lowpass'); }, 600); } if (this.flash > 0) { this.flash -= dt; hemi.intensity = 0.8 + (this.flash > 0 ? 1.4 : 0); } } };
 
 /* =====================================================================
    HUD — minimap, speedometer, target marker, timers
@@ -5053,7 +5238,7 @@ function refreshButtons() {
   for (const k of ['master', 'voice', 'sfx', 'amb', 'music']) { const el = $('vol_' + k); if (el) { el.value = Math.round(Settings.vol[k] * 100); $('vv_' + k).textContent = el.value; } }
   $('voiceStatus').textContent = Voice.status();
 }
-function toggleMute() { Sound.setMuted(!Settings.muted); if (Settings.muted) Voice.stop(); refreshButtons(); }
+function toggleMute() { Sound.setMuted(!Settings.muted); if (Settings.muted) Voice.stop(); StartMusic.applyVolume(); refreshButtons(); }
 function toggleQuality() { Settings.quality = Settings.quality === 'high' ? 'low' : 'high'; Settings.qualityChosen = true; saveSetting('dr_quality', Settings.quality); applyQuality(); refreshButtons(); }
 /* Performance guard: if the player never picked a graphics level and the real frame rate stays
    low during the first seconds of riding, switch to Low once (shadows/glow off, lower resolution). */
@@ -5070,13 +5255,15 @@ const PerfGuard = {
   },
 };
 function startGame() {
+  StartMusic.stop();
   Sound.init(); Voice.findTTS();
   ['menu', 'levels', 'intro', 'success', 'gameover', 'settings', 'howto'].forEach(hideOverlay);
   $('hud').classList.remove('hidden');
   Game.state = 'playing'; Cam.snap = true;
   resetAll();
   Music.play('city');
-  Toast.show('লেভেল ' + toBn(World.L.id) + ': ' + World.L.name + ' — ' + World.orders[0].cfg.rest + ' থেকে পার্সেল নিন', '', 5);
+  // the controls card is shown briefly at the start of a level, then hidden to keep the view clear
+  $('controlsHint').classList.remove('fade'); clearTimeout(Game.hintT); Game.hintT = setTimeout(() => $('controlsHint').classList.add('fade'), 12000);
   canvas.focus();
 }
 function resetAll() {
@@ -5085,7 +5272,7 @@ function resetAll() {
   if (Chase.active) Chase.end(false);
   for (const c of (GameOver.chasers || [])) { c.h.chasing = false; const i = OBSTACLES.indexOf(c); if (i >= 0) OBSTACLES.splice(i, 1); const h = c.h; h.root.position.set(c.home.x, groundH(c.home.x, c.home.z), c.home.z); h.root.rotation.y = c.home.yaw; h.setAction('idle'); if (c.home.ped) { c.home.ped.kind = c.home.ped.prevKind || 'walker'; c.home.ped.pos.set(c.home.x, 0, c.home.z); } }
   for (const r of Returners.list) { r.h.root.position.set(r.home.x, groundH(r.home.x, r.home.z), r.home.z); if (r.home.ped) { r.home.ped.kind = r.home.ped.prevKind || 'walker'; r.home.ped.pos.set(r.home.x, 0, r.home.z); } }
-  Returners.clear(); GameOver.reset(); Chaos.resetAll(); Events.reset();
+  Returners.clear(); GameOver.reset(); if (!bike.rider.root.parent) GameOver.remount(); Chaos.resetAll(); Events.reset();
   Mission.levelEarn = 0; Mission.levelTime = 0; Mission.results = []; HUD.money = -1;
   P.locked = false; P.bounce = 0; P.bounceV = 0; P.shake = 0; P.boxShake = 0; P.travelled = 0; P.fall = 0; P.fuel = World.L.fuel; P.fuelWarned = false;
   bike.rider.setAction('ride');
@@ -5097,6 +5284,7 @@ function pauseGame(p) {
   else if (!p && Game.state === 'paused') { Game.state = 'playing'; hideOverlay('pause'); hideOverlay('settings'); Sound.suspend(false); canvas.focus(); }
 }
 function toMenu() {
+  StartMusic.play(true);
   pauseGame(false); Game.state = 'menu'; ['pause', 'success', 'gameover'].forEach(hideOverlay); $('hud').classList.add('hidden'); showOverlay('menu');
   Dialogue.clear(); Bubbles.clear(); Sound.engine(0, 0, false); Music.stop(); resetAll(); Nav.clear(); refreshMenu();
 }
@@ -5129,7 +5317,7 @@ function onKeyPress(code) {
   if (code === 'KeyM') { toggleMute(); return; }
   if (!playing()) return;
   if (code === 'KeyE') Mission.interact();
-  if (code === 'KeyH') { Sound.horn(1, 0, 1.12); Bubbles.show(bike.rider.anchor, 'পিপ পিপ!', 0.9, 'emote'); for (const p of Peds.list) { const d = Math.hypot(p.pos.x - P.x, p.pos.z - P.z); if (d < 9 && p.react <= 0 && p.kind !== 'chaser') { p.react = 0.8; p.offT = 1.0; p.h.setAction('startled', true); } } }
+  if (code === 'KeyH') { Sound.horn(1, 0, 1.12); for (const p of Peds.list) { const d = Math.hypot(p.pos.x - P.x, p.pos.z - P.z); if (d < 9 && p.react <= 0 && p.kind !== 'chaser') { p.react = 0.8; p.offT = 1.0; p.h.setAction('startled', true); } } }
   if (code === 'KeyR' && !P.locked) recoverBike();
   if (code === 'Enter' && !$('success').classList.contains('hidden')) Mission.next();
 }
@@ -5148,7 +5336,7 @@ clickBlur('btnSettings', () => { Sound.init(); refreshButtons(); showOverlay('se
 clickBlur('btnHowto', () => showOverlay('howto')); clickBlur('btnHowtoClose', () => hideOverlay('howto'));
 clickBlur('btnSettingsClose', () => hideOverlay('settings'));
 clickBlur('setMute', toggleMute); clickBlur('setGfx', toggleQuality);
-const VOICE_TESTS = [['rider_shesh', 'rider', 'আমি আইজকা শ্যাষ!'], ['npc_city', 'angry', 'এবার বুঝছেন, ঢাকা শহর কার!'], ['rider_heart', 'rider', 'ডোন্ট লুক অ্যাট মি... আই অ্যাম এ হার্ট পেশেন্ট!'], ['npc_thasaya', 'angry', 'তোরে যদি আমি একা পাই, একদম থাসায়া ধরমু!'], ['rider_mother', 'rider', 'ওরা আমারে মারতে চায় মা, ওরা আমারে বাঁচতে দেবে না!']];
+const VOICE_TESTS = [['rider_jillu', 'rider', 'ওই জিল্লু, পার্সেল দে!'], ['npc_khaiya', 'angry', 'তোরে যদি একা পাই, একদম খাইয়া দিমু!'], ['pub_seal', 'angry', 'আমি তরে সিল মাইরা দিমু!'], ['cust_late', 'customer', 'এত দেরি মামা, ঠান্ডা হয়ে গেছে সব!'], ['rider_bachlam', 'rider', 'যাক, আজকের মতো বাঁচলাম।']];
 let voiceTestI = 0;
 clickBlur('setVoiceTest', () => {
   Sound.init(); Voice.findTTS();
@@ -5157,20 +5345,20 @@ clickBlur('setVoiceTest', () => {
   $('voiceStatus').textContent = '▶ "' + text + '"';
   setTimeout(() => { $('voiceStatus').textContent = Voice.status() + (Voice.failed[k] ? ' (এই লাইনের অডিও ফাইল চালানো যায়নি)' : ''); }, 3500);
 });
-for (const k of ['master', 'voice', 'sfx', 'amb', 'music']) { const el = $('vol_' + k); el.addEventListener('input', () => { Settings.vol[k] = el.value / 100; $('vv_' + k).textContent = el.value; saveSetting('dr_vol', JSON.stringify(Settings.vol)); Sound.applyVolumes(); Voice.applyVolume(); }); }
+for (const k of ['master', 'voice', 'sfx', 'amb', 'music']) { const el = $('vol_' + k); el.addEventListener('input', () => { Settings.vol[k] = el.value / 100; $('vv_' + k).textContent = el.value; saveSetting('dr_vol', JSON.stringify(Settings.vol)); Sound.applyVolumes(); Voice.applyVolume(); StartMusic.applyVolume(); }); }
 clickBlur('btnSoundHud', toggleMute);
 clickBlur('btnPauseHud', () => pauseGame(true));
 clickBlur('btnResume', () => pauseGame(false));
-clickBlur('btnRestartP', () => { pauseGame(false); resetAll(); Toast.show('লেভেল রিস্টার্ট হয়েছে', '', 2); });
+clickBlur('btnRestartP', () => { pauseGame(false); resetAll(); });
 clickBlur('btnSoundP', toggleMute); clickBlur('btnGfxP', toggleQuality);
 clickBlur('btnSettingsP', () => { refreshButtons(); showOverlay('settings'); });
-clickBlur('btnLevelsP', () => { pauseGame(false); Game.state = 'menu'; $('hud').classList.add('hidden'); Music.stop(); Sound.engine(0, 0, false); openLevelSelect(); });
+clickBlur('btnLevelsP', () => { pauseGame(false); Game.state = 'menu'; $('hud').classList.add('hidden'); Music.stop(); Sound.engine(0, 0, false); StartMusic.play(true); openLevelSelect(); });
 clickBlur('btnMenuP', toMenu);
 clickBlur('btnNext', () => Mission.next());
-clickBlur('btnRestartS', () => { resetAll(); Toast.show('লেভেল রিস্টার্ট হয়েছে', '', 2); });
-clickBlur('btnLevelsS', () => { hideOverlay('success'); Game.state = 'menu'; $('hud').classList.add('hidden'); Music.stop(); Sound.engine(0, 0, false); openLevelSelect(); });
+clickBlur('btnRestartS', () => { resetAll(); });
+clickBlur('btnLevelsS', () => { hideOverlay('success'); Game.state = 'menu'; $('hud').classList.add('hidden'); Music.stop(); Sound.engine(0, 0, false); StartMusic.play(true); openLevelSelect(); });
 clickBlur('btnGoRestart', () => { GameOver.reset(); resetAll(); Music.play('city'); });
-clickBlur('btnGoLevels', () => { GameOver.reset(); Game.state = 'menu'; $('hud').classList.add('hidden'); Music.stop(); Sound.engine(0, 0, false); openLevelSelect(); });
+clickBlur('btnGoLevels', () => { GameOver.reset(); Game.state = 'menu'; $('hud').classList.add('hidden'); Music.stop(); Sound.engine(0, 0, false); StartMusic.play(true); openLevelSelect(); });
 clickBlur('btnIntroStart', startGame);
 clickBlur('btnIntroLevels', openLevelSelect);
 if ('speechSynthesis' in window) window.speechSynthesis.onvoiceschanged = () => { Voice.findTTS(); refreshButtons(); };
@@ -5184,7 +5372,7 @@ function updateNPCs(dt) {
     if (H.template) continue;
     const pr = H.root.parent ? null : H.root.position;
     if (pr && !H.important) {
-      const far = Math.abs(pr.x - cx) > 105 || Math.abs(pr.z - cz) > 105;
+      const far = Math.abs(pr.x - cx) > 130 || Math.abs(pr.z - cz) > 130;
       if (far) { if (H.root.isEnabled()) H.root.setEnabled(false); continue; } else if (!H.root.isEnabled()) H.root.setEnabled(true);
     }
     if (H.root.isEnabled()) H.update(dt);
@@ -5201,13 +5389,12 @@ function frame(dt) {
   if (active && !GameOver.active) { Chaos.check(); Mission.update(dt); Seq.update(dt); Flight.update(dt); Nav.update(dt); }
   Chaos.update(dt); Chase.update(dt); Returners.update(dt); GameOver.update(dt);
   updateNPCs(dt);
-  Dialogue.update(dt); Banner.update(dt); Lightning.update(dt);
+  Dialogue.update(dt); Banner.update(dt);
   updateCamera(dt);
   Sound.engine(clamp(Math.abs(P.v) / VMAX, 0, 1), P.throttle, active);
   if (Sound.ready) { let dmin = 1e9; for (const o of World.orders) { const f = faceInfo(o.rest); dmin = Math.min(dmin, Math.hypot(f.fx - P.x, f.fz - P.z)); } Sound.crowdGain.gain.setTargetAtTime(active ? clamp(1 - dmin / 25, 0, 1) * 0.07 : 0, Sound.ctx.currentTime, 0.3); }
   if (World.metro) Metro.update(dt);
   if (World.waterMesh) TEX_WATER.uOffset += dt * 0.01;
-  if (FX.rain) FX.rain.emitter.set(camera.position.x, camera.position.y + 12, camera.position.z);
   const fx = active ? P.x : World.start.x, fz = active ? P.z : World.start.z;
   sun.position.set(Math.round(fx) - SUN_DIR.x * 150, -SUN_DIR.y * 150, Math.round(fz) - SUN_DIR.z * 150);
 }
@@ -5253,16 +5440,30 @@ function boot() {
     applyAtmosphere(L);
     buildColGrid();
     HUMANS_SOLID = Mission.workers.concat(Mission.customers);
-    Voice.preload(); Voice.findTTS();
+    Voice.preload(); Voice.findTTS(); StartMusic.init(); Clips.preload();
     buildSpeedo(); refreshButtons(); applyQuality();
     resetAll();
     Game.state = auto ? 'intro' : 'menu';
     $('introTitle').textContent = 'লেভেল ' + toBn(L.id) + ': ' + L.name; $('mmLabel').textContent = L.en; $('introEn').textContent = L.en; $('introBlurb').textContent = L.blurb;
-    $('introInfo').textContent = 'অর্ডার: ' + toBn(World.orders.length) + 'টি · কঠিনতা: ' + '★'.repeat(L.diff) + (L.rain ? ' · বৃষ্টি' : '') + (L.time === 'night' ? ' · রাত' : '') + (L.fuel < 100 ? ' · তেল কম, পাম্প খুঁজুন' : '');
+    $('introInfo').textContent = 'অর্ডার: ' + toBn(World.orders.length) + 'টি · কঠিনতা: ' + '★'.repeat(L.diff) + (L.time === 'night' ? ' · রাত' : '') + (L.fuel < 100 ? ' · তেল কম, পাম্প খুঁজুন' : '');
     scene.executeWhenReady(() => {
-      $('loading').classList.add('hidden');
-      if (auto) showOverlay('intro'); else { showOverlay('menu'); refreshMenu(); }
       buildMinimap();
+      let shown = false;
+      const reveal = () => {
+        if (shown) return; shown = true;
+        $('loading').classList.add('hidden');
+        if (auto) showOverlay('intro'); else { showOverlay('menu'); refreshMenu(); }
+        StartMusic.play(false);
+      };
+      // Browsers only allow sound after the first click / key press on a page. Try to start the
+      // music at once; if the browser blocks it, show one "click to start" button first.
+      StartMusic.tryAutoplay().then((ok) => {
+        if (ok || shown) { reveal(); return; }
+        $('loadingText').textContent = 'ঢাকা শহর তৈরি!'; document.querySelector('#loading .wheel').style.display = 'none';
+        const btn = $('btnTapStart'); btn.classList.remove('hidden');
+        const go = (e) => { if (e) e.preventDefault(); window.removeEventListener('keydown', go, true); Sound.init(); Voice.findTTS(); reveal(); };
+        btn.addEventListener('click', go, { once: true }); window.addEventListener('keydown', go, true);
+      });
     });
     let last = performance.now();
     engine.runRenderLoop(() => {
@@ -5273,7 +5474,7 @@ function boot() {
       try { afterRender(dt); } catch (e) { if (!window.__drErr2) { window.__drErr2 = 1; console.error('HUD update error', e); } }
     });
     window.addEventListener('resize', () => { engine.resize(); buildMinimap(); });
-    window.DR_DEBUG = { P, Mission, Events, RickEvent, Traffic, Peds, Chase, GameOver, Chaos, Stalls, Nav, World, scene, engine, Game, startGame, Keys, onKeyPress, Dialogue, Voice, Progress, camera, HUMANS, loadLevel, resetAll, Signals,
+    window.DR_DEBUG = { P, StartMusic, Clips, Mission, Events, RickEvent, Traffic, Peds, Chase, GameOver, Chaos, Stalls, Nav, World, scene, engine, Game, startGame, Keys, onKeyPress, Dialogue, Voice, Progress, camera, HUMANS, loadLevel, resetAll, Signals,
       step(n, dt) { for (let i = 0; i < n; i++) { frame(dt || 1 / 30); afterRender(dt || 1 / 30); } } };
   } catch (err) {
     console.error(err);

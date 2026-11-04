@@ -24,8 +24,13 @@ runs, but dialogue falls back to browser speech or subtitles only.
   assets/audio/voices/npc/        restaurant worker / angry public / rickshaw
   assets/audio/voices/customer/   customer reactions (male/female/elder)
   assets/audio/voices/vendors/    tea-stall and fruit-seller lines
+  assets/audio/music/             start_music.mp3 (menu / level start music)
+  assets/audio/sfx/               aye.mp3 (pedestrian hit), fight.mp3 (beating),
+                                  bell.mp3 (rickshaw bell)
   README.txt                      this file
-  backup_v0.1/                    the previous version (v0.1), untouched
+  backup_v0.1/                    the first version (v0.1), untouched
+  backup_v0.3/, backup_v0.3.1/,
+  backup_v0.3.2/                  earlier versions, newest last
 
 
 2. HOW TO OPEN THE GAME
@@ -69,50 +74,56 @@ from "লেভেল সিলেক্ট" (Level Select). Progress, best resu
                                     jhalmuri carts, fruit stall. Daytime.
  2  কাজীপাড়া (Kazipara)    ★        Metro-rail viaduct over the main road,
                                     narrow lanes, many tea stalls, rickshaw
-                                    crowds. Evening.
+                                    crowds. Daytime.
  3  মোহাম্মদপুর (Mohammadpur) ★★     Busy market lane, fruit sellers, fuchka
                                     and chotpoti stalls, delivery van.
  4  ধানমন্ডি (Dhanmondi)    ★★       Road grid with many intersections,
                                     lake + park, bigger buildings,
                                     restaurants, parked cars.
  5  ফার্মগেট (Farmgate)     ★★★      Wide roads with traffic signals, bus
-                                    stops, many buses/minibuses, footbridges,
-                                    RAIN.
+                                    stops, many buses/minibuses, footbridges.
+                                    Daytime.
  6  শাহবাগ (Shahbagh)      ★★★      Flower market road, big junction, park,
-                                    crowds, extra rickshaw encounters. Evening.
+                                    crowds, extra rickshaw encounters. Daytime.
  7  পুরান ঢাকা (Old Dhaka)  ★★★★     Maze of narrow lanes, dense market, old
-                                    buildings, rickshaw jams. Dusk. LOW FUEL
+                                    buildings, rickshaw jams. Daytime. LOW FUEL
                                     (petrol pump on the map).
  8  মতিঝিল (Motijheel)     ★★★★     Office towers, signals, Shapla sculpture,
                                     heavy traffic, tight time limits. Low fuel.
  9  গুলশান-বনানী (Gulshan)  ★★★★★    Wide avenues, modern glass buildings,
-                                    lake bridge, long routes. Evening. Low fuel.
-10  হাতিরঝিল (Hatirjheel)  ★★★★★    Night ride around the big lake, two
-                                    lit bridges, 3 orders, low fuel.
+                                    lake bridge, long routes. EVENING. Low fuel.
+10  হাতিরঝিল (Hatirjheel)  ★★★★★    NIGHT ride around the big lake, two
+                                    lit bridges, low fuel.
 
-Levels 1–3 have 1 delivery order, levels 4–9 have 2, level 10 has 3.
+Level 1 keeps the three short Mirpur orders of v0.1; levels 2–3 have
+1 delivery order, levels 4–9 have 2 and level 10 has 3.
+Levels 1–8 are bright daytime. Level 9 is evening and level 10 is
+night; there every vehicle drives with headlights and tail lights,
+street lamps light up the road and shops/windows glow, so the street
+stays easy to see. There is no rain.
 Every level has its own road layout, building style, traffic mix,
-stalls, pedestrians, weather/time of day and delivery orders.
+stalls, pedestrians, time of day and delivery orders.
 Areas are compact, stylised blocks (about 220–340 m across) inspired by
 each neighbourhood — not exact street maps.
 
 
 5. HOW A DELIVERY WORKS
 -----------------------
- 1. The restaurant worker waves; a yellow beam marks him. Ride up and
-    press E. The parcel flies onto your delivery box.
+ 1. The restaurant worker waves; a yellow beam marks him. As you ride
+    up to him the rider calls "ওই জিল্লু, পার্সেলটা দে!"; then press E
+    and the parcel flies onto the delivery box.
  2. A time limit appears (based on the route length). The customer is
-    marked with a teal beam.
+    marked with a teal beam. All customers are men. When you are close
+    but not there yet, the rider says "আশেপাশেই তো থাকার কথা... ওইতো,
+    ওইদিক!".
  3. Parcel condition starts at 100 %. Crashes, falls, potholes, hitting
     stalls/people and very hard braking reduce it. At 0 % the mission
     fails.
  4. At the customer press E. The customer reacts:
-    on time   -> "এইবার তো ঠিক সময়ে আইছেন!"
-    late      -> "ভাই, এত দেরি কেন?" (rider may answer "ঢাকার জ্যাম ভাই,
-                 আমার কী দোষ!")
-    very late -> "ভাই, বিরিয়ানি অর্ডার করছি, আপনার জীবনের গল্প না!"
-                 (for biryani / kacchi / tehari / polao orders)
-    damaged   -> "এইডা কোনো কথা হইলো?"
+    on time            -> "এইবার তো ঠিক সময়ে আইছেন!"
+    late               -> "এত দেরি মামা, ঠান্ডা হয়ে গেছে সব!"
+    parcel under 80 %  -> "এইডা কেমন কথা? এইটা আমি খাবো, নাকি
+                           কুত্তারে খাওয়াবো?"
  5. Reward = base pay (grows with level) + time bonus + safe-riding
     bonus − damage − late penalty. Rating 1–5 stars.
  6. The result screen shows the breakdown; after the last order of a
@@ -143,49 +154,67 @@ each neighbourhood — not exact street maps.
 - Parked motorcycles, rickshaws and cars; bus stops, signals, banners,
   billboards, construction zones, footbridges, metro viaduct.
 - Stalls: tea, fuchka, chotpoti, jhalmuri, fruit, flower, mobile
-  accessories. Hitting one sends its items flying with its own sound
-  and a reaction line from the owner (e.g. "এই ভাই! চায়ের দোকান
-  নাকি আপনার রেসিং ট্র্যাক?").
-- Pedestrians walk, wait and cross at zebra crossings, chat in groups,
-  jump aside when you honk, stumble and recover if you bump them.
-- Funny events: pothole surprise ("ও মা! রাস্তা নাকি চাঁদের জমিন!"),
-  rickshaw cutting in ("ও ভাই! রাস্তা কি আপনার একার?"), bike falling
-  over on a hard crash. Events have cooldowns and never overlap.
-- CROWD CHASE: knocking over a stall (sometimes) or bumping two people
-  within 45 s makes the public chase you: banner "ওহ না! লোকজন পেছনে
-  লেগেছে!", chase music, a red chase panel, the rider's line
-  "ওরা আমারে মারতে চায় মা, ওরা আমারে বাঁচতে দেবে না!" and the angry
-  man's "তোরে যদি আমি একা পাই, একদম থাসায়া ধরমু!".
-  Ride ~38 m away to escape (normal music returns).
-  If they reach you while you are slow: cartoon capture (dust, stars,
-  "ধুপ-ধাপ" sound), "এবার বুঝছেন, ঢাকা শহর কার!" → "আমি আইজকা শ্যাষ!",
-  then GAME OVER with Restart Level / Level Select.
+  accessories. Hitting any stall sends its items flying with its own
+  sound; the owner cries "হায়রে!!! সব শেষ আমার!" and 8 seconds later
+  comes after you (with a helper) — the crowd chase below.
+- Busy streets from Level 1 on: dozens of pedestrians on the footpaths,
+  people walking along the edge of the road itself, groups chatting,
+  people crossing at zebra crossings, and many street stalls on every
+  level. People jump aside when you honk or ride close.
+- Rickshaw cutting in: a real bicycle-bell sound, the puller shouts
+  "ও ভাই! রাস্তা কি আপনার একার?" and the rider sometimes answers
+  "মামা, একটু সাইড দেন!" (same when you bump a rickshaw).
+- Potholes bounce the bike and damage the parcel; a hard head-on crash
+  tips the bike over.
+- BUMPING A PEDESTRIAN: an "AYE!" sound, the person is knocked flat and
+  lies on the road. After 3 seconds they shout — the two lines take
+  turns from one incident to the next: "আমি তরে সিল মাইরা দিমু!" and
+  "বুঝছি তোমার মরণের চুলকানি উঠেছে।". After 10 seconds they get up and
+  the CROWD CHASE starts (if you are already far away they let it go).
+  Every other person you knock down joins the chase the same way.
+- CROWD CHASE: a small red counter under the navigation panel shows
+  "🏃 N জন তাড়া করছে · D মি" (how many are chasing and how close the
+  nearest one is), with chase music. The chase starts with
+  "তোরে যদি একা পাই, একদম খাইয়া দিমু!".
+  ESCAPE: speed up and pull clearly away from them — they give up and
+  the rider says "যাক, আজকের মতো বাঁচলাম।".
+  CAUGHT (they reach you while you are slow, or you stand still right
+  next to them): the bike tips over, the rider falls onto the road and
+  they beat him up — punching, dust cloud, "ধুপ-ধাপ!" and
+  "ধুপ!/ধাপ!/ঢিশুম!" pop-ups and the recorded fighting sound (about
+  4.5 s). Then the rider: "আজকে গেছি রে!" and GAME OVER with Restart
+  Level / Level Select.
+- A clean screen: spoken lines are heard, not printed (a subtitle only
+  appears if a voice cannot be played, e.g. with sound muted); no
+  pop-up banners or speech bubbles apart from the beating; the controls
+  card hides itself 12 seconds after a level starts.
 
-
-8. BENGALI VOICES — WHAT THEY ACTUALLY ARE
-------------------------------------------
-- 29 dialogue lines are pre-generated audio files (assets/audio/voices).
-  They were produced OFFLINE with an open-source Bengali neural
-  text-to-speech model (Coqui TTS, VITS Bengali male and female voices)
-  and then pitch/speed-shaped with ffmpeg to give different characters
-  (rider, worker, angry man, rickshaw puller, vendors, customers).
-- They are AI-generated synthetic speech, NOT recordings of real voice
-  actors. The Dhakaiya lines are spelled phonetically ("আমি আইজকা
-  শ্যাষ!", "এইডা কোনো কথা হইলো?"); the TTS model reads them, but the
-  accent is most likely closer to standard Bangla and was not checked by a native
-  listener. Replace any .mp3 with a real recording of the same name if
-  you want better acting — the game will use it automatically.
-- If an audio file is missing or cannot be played, that line uses the
-  browser's Bengali speech voice (bn-BD, then bn-IN) when the computer
-  has one. An English voice is never used for Bengali text. If neither
-  exists, only the Bangla subtitle is shown. Subtitles are always
-  shown.
-- Settings → "ভয়েস টেস্ট" plays the signature lines and tells you
-  which voice source is in use.
-
+8. BENGALI VOICES
+-----------------
+- Every spoken line in the game is a real recording you supplied
+  (assets/audio/voices): 11 lines you recorded (rider, customer,
+  rickshaw puller, stall owner, angry man) and the two film-dialogue
+  clips for the knocked-down pedestrians. They were trimmed, cleaned of
+  light background hiss and set to the same loudness; the two film
+  clips also had their background noise reduced and the sound effects
+  at their start and end cut off.
+- The older AI-generated voice files are no longer used by the game
+  (they may still sit in the assets folder; they can be deleted).
+- If an audio file is missing or cannot be played, the line is shown
+  as a subtitle instead (or read by the browser's Bengali voice if the
+  computer has one — never an English voice).
+- Settings → "ভয়েস টেস্ট" plays a few of the recorded lines.
 
 9. SOUND AND SETTINGS
 ---------------------
+- Start music: assets/audio/music/start_music.mp3 plays on the main
+  menu and on every level's start screen, and stops as soon as the ride
+  begins. Browsers (Chrome, Edge, Firefox) do not let any web page play
+  sound before the first click or key press. So when the browser blocks
+  it, the loading screen ends with one "▶ শুরু করতে ক্লিক করুন" button;
+  the music starts with that click. When the browser allows sound
+  straight away, the button is skipped. The Music slider and Mute
+  control it.
 - Main menu / pause → Settings: Master, Voice, SFX, Ambient (city),
   Music sliders, Mute, Graphics High/Low, Voice test. Saved in the
   browser.
@@ -194,7 +223,7 @@ each neighbourhood — not exact street maps.
   CNG horn, bus air-horn, crash, pothole thud, cup clatter, fruit
   scatter, wood/metal stall hits, pedestrian "oof", bike fall,
   footsteps, capture "ধুপ-ধাপ", game-over sting, success jingle,
-  coin, unlock fanfare, city ambience, rain, crowd murmur, city and
+  coin, unlock fanfare, city ambience, crowd murmur, city and
   chase music.
 - Dialogue has priorities (Game Over > caught > crowd chase > mission
   > customer > collision > ambient), per-line cooldowns, and only one
@@ -212,7 +241,8 @@ each neighbourhood — not exact street maps.
   and parked vehicles; chaos/collision reactions; crowd chase and game
   over; smart navigation; time limits, parcel condition, fuel and petrol
   pumps; reward breakdown and customer reactions; Bengali voice files;
-  audio channels and settings; day / evening / dusk / night / rain.
+  audio channels and settings; bright day / evening / night lighting
+  with vehicle headlights at evening and night.
 
 
 11. WHAT WAS TESTED
@@ -220,26 +250,28 @@ each neighbourhood — not exact street maps.
 Tested in a headless Chromium browser with software (CPU) rendering,
 opening index.html from the file system (file://), as you will:
 - All 10 levels build and start without JavaScript errors
-  (screenshots of every level checked).
+  (screenshots of every level checked, including the brighter daytime
+  look and the evening/night headlights).
 - Full play-through with a scripted rider that follows the in-game
-  navigation: Level 1 from empty progress (pickup -> delivery -> level
-  complete -> Level 2 unlocked -> "next level" reload keeps progress ->
+  navigation: Level 1 from empty progress (all 3 orders: pickup ->
+  delivery, including a damaged-parcel reaction -> level complete ->
+  Level 2 unlocked -> "next level" reload keeps progress ->
   Level Select shows Level 1 best result, Level 2 open, 3–10 locked) and
   Level 10 (all 3 orders: on-time, late and very-late customer
   reactions, reward breakdown, final "all 10 areas" message).
 - Navigation: left / right / straight / U-turn / arrival instructions
-  appeared during the scripted rides; a deliberate wrong turn showed
-  "ভুল রাস্তায় চলে গেছেন, নতুন রাস্তা দেখানো হচ্ছে!" and the route was
-  recalculated.
-- Events: stall knocked over (owner reaction), pothole (rider line,
-  mud, bounce), two pedestrian bumps -> crowd chase (banner, chase
-  panel, both chase lines) -> standing still -> caught -> "এবার বুঝছেন,
-  ঢাকা শহর কার!" -> "আমি আইজকা শ্যাষ!" -> GAME OVER -> Restart Level;
-  separately, escaping a chase.
-- All 29 voice files load and play from file:// (playback position
-  advances); Settings voice test, sliders (saved), pause / resume.
-- The automatic "switch to Low graphics when the frame rate is low"
-  safeguard.
+  appeared during the scripted rides; a deliberate wrong turn was
+  detected and the route was recalculated (the panel now shows
+  "ভুল রাস্তা! নতুন রুট দেখানো হচ্ছে").
+- Latest checks (Level 1): each recorded line plays at its event —
+  pickup "ওই জিল্লু…", near the customer, on-time / late / damaged
+  customer, stall owner then the owner's chase exactly 8 s later,
+  pedestrian AYE → line at 3 s → chase at 10 s → caught → fighting
+  sound → "আজকে গেছি রে!" → GAME OVER, escape line, rickshaw bell and
+  both rickshaw lines. During all of this no subtitles, toasts or
+  speech bubbles appeared except the beating pop-ups.
+- Start music, Settings voice test, sliders (saved), pause / resume,
+  and the automatic "switch to Low graphics" safeguard.
 Not tested: real sound output (no speakers in the test machine), the
 look and frame rate on a real graphics card, other browsers.
 
@@ -248,14 +280,10 @@ look and frame rate on a real graphics card, other browsers.
 ---------------------
 - Internet is needed for Babylon.js and fonts; offline the game shows
   an error message instead of starting.
-- Voices are AI text-to-speech, not actors (see section 8). The
-  Dhakaiya flavour comes from the spelling; the generated accent is
-  closer to standard Bangla, and pronunciation was not checked by ear.
-  Every spoken dialogue line has its own audio file. Short speech-
-  bubble shouts (bus conductor "মিরপুর! মিরপুর!", bystanders' "আরে
-  আরে!") are text bubbles without voice. If the assets folder is
-  missing, the game falls back to the browser's Bengali voice — Chrome
-  on Windows usually has none, so then only subtitles are shown.
+- Voices are your recordings (see section 8). They were processed
+  without listening to them: which film clip says which line was worked
+  out from clip lengths and file names, and the noise clean-up was
+  checked on spectrograms only.
 - Performance on your PC is unknown. With Graphics High a busy level
   needs roughly 1,300 draw calls per frame (city + shadows + glow);
   with Low about half. If the frame rate is low during the first
@@ -274,4 +302,3 @@ look and frame rate on a real graphics card, other browsers.
 - Progress and settings use browser storage (localStorage). Some
   browsers / privacy modes block it for file:// pages; then progress
   resets when the page is closed.
-- Rain is visual + sound only (no wet-road physics).
