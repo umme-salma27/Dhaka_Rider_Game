@@ -2,7 +2,18 @@
 <html lang="bn">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#140e0b">
+<script>
+/* Phones and tablets get the touch layout (on-screen buttons, compact HUD). ?touch=1 forces it for testing. */
+(function () {
+  var forced = /[?&]touch=1/.test(location.search);
+  var mq = window.matchMedia && window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+  if (forced || mq) document.documentElement.classList.add('touch');
+})();
+</script>
 <title>Dhaka Rider — Delivery Rush</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='16' cy='44' r='11' fill='none' stroke='%23ff7a1a' stroke-width='6'/%3E%3Ccircle cx='48' cy='44' r='11' fill='none' stroke='%23ff7a1a' stroke-width='6'/%3E%3Cpath d='M16 44 L30 24 L44 24 L48 44' fill='none' stroke='%23222' stroke-width='5'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -275,16 +286,163 @@ kbd{font-family:var(--disp);font-size:11px;min-width:26px;text-align:center;padd
   #minimapWrap{display:none}
   #controlsHint{display:none}
 }
+/* ---------- v0.4: phones and tablets (touch layout, landscape) ---------- */
+#touchUI,#rotate{display:none}
+html:not(.touch) .touch-only{display:none !important}
+html.touch .desk-only{display:none !important}
+html.touch,html.touch body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+html.touch .btn{touch-action:manipulation}
+html.touch .btn:hover{transform:none}
+/* on-screen controls */
+html.touch #touchUI{display:block;position:absolute;inset:0;pointer-events:none}
+.tcluster{position:absolute;bottom:max(12px,env(safe-area-inset-bottom));pointer-events:auto;--s:clamp(56px,19vh,86px)}
+#tLeft{left:max(14px,env(safe-area-inset-left));display:flex;gap:12px}
+#tRight{right:max(14px,env(safe-area-inset-right));display:grid;grid-template-columns:var(--s) var(--s);grid-template-areas:"x e" "dn up";gap:10px 12px}
+.tbtn{width:var(--s);height:var(--s);border-radius:50%;border:2px solid rgba(255,255,255,0.38);background:rgba(20,16,24,0.42);color:#fff;
+  display:flex;align-items:center;justify-content:center;touch-action:none;box-shadow:0 6px 18px rgba(0,0,0,0.3);transition:transform .06s,background .06s}
+.tbtn svg{width:46%;height:46%;pointer-events:none}
+.tbtn.on{background:rgba(255,122,26,0.78);border-color:#ffc21a;transform:scale(0.93)}
+.tbtn.up{grid-area:up}
+.tbtn.dn{grid-area:dn}
+.tbtn.e{grid-area:e;justify-self:center;align-self:end;width:calc(var(--s) * 0.82);height:calc(var(--s) * 0.82);font-family:var(--disp);font-size:calc(var(--s) * 0.34);
+  color:#1a1208;background:rgba(255,194,26,0.9);border-color:#fff}
+.tbtn.e.on{background:#ffe14d}
+#prompt:not(.hidden) ~ #touchUI .tbtn.e{animation:epulse .8s ease-in-out infinite}
+@keyframes epulse{50%{box-shadow:0 0 0 10px rgba(255,194,26,0.38)}}
+/* turn the phone sideways */
+#rotate{position:fixed;inset:0;z-index:100;background:radial-gradient(ellipse at 50% 40%,#3a2516 0%,#140e0b 70%);flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;padding:24px}
+#rotate .ph{width:46px;height:78px;border:4px solid var(--yel);border-radius:10px;position:relative;animation:rot 2.2s ease-in-out infinite}
+#rotate .ph:after{content:"";position:absolute;left:50%;bottom:5px;width:10px;height:3px;margin-left:-5px;border-radius:2px;background:var(--yel)}
+@keyframes rot{0%,20%{transform:rotate(0)}50%,80%{transform:rotate(-90deg)}100%{transform:rotate(0)}}
+#rotate .rt{font-size:20px;font-weight:700;color:var(--txt);line-height:1.4}
+#rotate small{font-family:var(--disp);font-size:12px;letter-spacing:2px;color:var(--mut)}
+@media (orientation: portrait){ html.touch #rotate{display:flex} }
+/* compact HUD so the road stays visible */
+html.touch #controlsHint{display:none}
+html.touch #missionPanel{top:max(8px,env(safe-area-inset-top));left:max(8px,env(safe-area-inset-left));width:clamp(176px,25vw,236px);border-radius:12px}
+html.touch #missionPanel .stripe{height:3px}
+html.touch #missionPanel .in{padding:5px 10px 7px}
+html.touch .m-top{display:none}
+html.touch #missionPanel .m-level{font-size:10px;margin-top:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html.touch .m-title{font-size:13px;margin-top:1px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html.touch .m-row{font-size:11px;margin-top:1px;gap:4px;min-width:0}
+html.touch .m-row .val{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+html.touch .m-meta{font-size:11px;gap:8px;margin-top:2px}
+html.touch .meter{margin-top:3px;font-size:10px;gap:5px}
+html.touch .meter b{font-size:10px;min-width:30px}
+html.touch .bar{height:5px}
+html.touch .status{margin-top:4px;font-size:9px;padding:2px 8px;gap:5px;max-width:100%;white-space:nowrap;overflow:hidden}
+html.touch .status span{overflow:hidden;text-overflow:ellipsis}
+html.touch .status i{width:6px;height:6px}
+html.touch #navPanel{top:max(8px,env(safe-area-inset-top));bottom:auto;left:50%;transform:translateX(-50%);width:clamp(190px,32vw,310px);min-width:0;padding:5px 9px 6px;gap:8px;border-radius:12px;border-left-width:4px}
+html.touch #navIcon{width:34px;height:34px;border-radius:9px}
+html.touch #navIcon svg{width:22px;height:22px}
+html.touch #navText{font-size:13px;line-height:1.2}
+html.touch .nav-sub{margin-top:1px}
+html.touch #navDist{font-size:12px}
+html.touch #navRemain{font-size:10px}
+html.touch .nav-prog{height:3px;margin-top:3px}
+html.touch #walletPanel{top:max(8px,env(safe-area-inset-top));right:max(8px,env(safe-area-inset-right));border-radius:12px}
+html.touch .wal{padding:4px 9px}
+html.touch .wal .lab{font-size:9px}
+html.touch .wal .num{font-size:14px}
+html.touch .iconbtn{padding:0;min-width:40px;justify-content:center}
+html.touch .iconbtn svg{width:19px;height:19px}
+html.touch #minimapWrap{display:block;top:calc(max(8px,env(safe-area-inset-top)) + 50px);right:max(8px,env(safe-area-inset-right));width:clamp(90px,27vh,128px);height:clamp(90px,27vh,128px);border-radius:12px}
+html.touch .mm-label{font-size:8px;left:6px;bottom:4px}
+html.touch #speedo{left:50%;bottom:max(6px,env(safe-area-inset-bottom));transform:translateX(-50%);width:84px;height:42px;border-radius:12px}
+html.touch #speedo svg,html.touch #gear,html.touch #brakeLamp{display:none}
+html.touch #speedVal{top:4px;font-size:21px}
+html.touch #speedUnit{top:27px;font-size:8px;letter-spacing:0.5px}
+html.touch #chaseBig{top:calc(max(8px,env(safe-area-inset-top)) + 54px);font-size:12px;padding:3px 10px}
+html.touch #toasts{top:calc(max(8px,env(safe-area-inset-top)) + 84px);width:min(340px,42vw);gap:5px}
+html.touch .toast{font-size:12px;padding:5px 10px;border-radius:9px;border-left-width:4px}
+html.touch #eventBanner{top:calc(max(8px,env(safe-area-inset-top)) + 84px);padding:5px 14px 5px 6px}
+html.touch #eventBanner .ic{width:26px;height:26px;font-size:15px}
+html.touch #eventBanner .tx{font-size:14px}
+html.touch #subtitle{bottom:calc(clamp(56px,19vh,86px) + 26px);max-width:min(520px,50vw)}
+html.touch #subtitle .line{font-size:14px;padding:6px 12px}
+html.touch #subtitle .who{font-size:11px;margin-bottom:3px}
+html.touch #prompt{top:36%;pointer-events:auto}
+html.touch #promptKey{font-size:14px;padding:7px 12px;gap:8px}
+html.touch #promptKey kbd{font-size:13px;min-width:28px;padding:4px 8px}
+html.touch #bigMsg .b1{font-size:clamp(22px,5vw,38px)}
+html.touch #bigMsg .b2{font-size:clamp(16px,3vw,24px)}
+html.touch #bigMsg .b3{font-size:clamp(18px,3.4vw,28px);margin-top:6px}
+html.touch .bubble{font-size:12px;padding:4px 9px}
+html.touch #marker .pin{font-size:11px;padding:3px 8px}
+html.touch .modal .stack kbd{display:none}
+@media (max-width: 700px){
+  html.touch #navPanel{width:clamp(160px,29vw,310px)}
+  html.touch .iconbtn{min-width:34px}
+  html.touch .wal{padding:4px 7px}
+}
+/* short screens (phones in landscape, small windows): menus and dialogs fit without scrolling much */
+@media (max-height: 520px){
+  .title .t1{font-size:clamp(28px,10vh,46px)}
+  .title .t2{font-size:clamp(16px,5.5vh,26px);margin-top:3px}
+  .kicker{font-size:11px;margin-bottom:6px;padding:2px 10px}
+  .title-bn{font-size:15px;margin-top:4px}
+  .tagline{font-size:12px;margin:4px 0 8px;line-height:1.4}
+  .btn{font-size:14px;padding:8px 14px;border-radius:12px}
+  .btn.primary{font-size:17px;padding:10px 22px;box-shadow:0 5px 0 #9c3c00}
+  .btn small{font-size:10px}
+  .keys{display:none}
+  #menu .menu-actions{gap:6px;margin-top:8px}
+  #menuLevel{font-size:12px;margin-top:6px}
+  .note{font-size:11px;margin-top:6px}
+  .overlay.center{padding:8px}
+  .modal .body{padding:10px 16px 12px}
+  .modal h2{font-size:20px}
+  .modal .h2bn{font-size:14px}
+  .modal .stack{gap:6px;margin-top:10px}
+  .modal .stack .btn{padding:7px 12px}
+  #pause .modal{width:min(560px,calc(100vw - 24px))}
+  #pause .stack{display:grid;grid-template-columns:1fr 1fr}
+  #levelGrid{max-height:calc(100vh - 152px);margin-top:8px;gap:8px;grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
+  .lvl{padding:7px;gap:9px}
+  .lvl .pv{width:66px;height:66px}
+  .lvl .lb{display:none}
+  .lvl .ln b{font-size:15px}
+  .lvl .num{font-size:16px;min-width:28px}
+  .lvl .btn{font-size:13px !important;padding:5px 12px !important;box-shadow:0 3px 0 #9c3c00 !important}
+  .slider{margin-top:3px;font-size:13px;grid-template-columns:96px 1fr 32px}
+  #voiceStatus{font-size:11px;margin-top:4px}
+  .modal .row2{margin-top:8px;gap:6px}
+  .modal .row2 .btn{min-width:110px}
+  .howto{max-height:calc(100vh - 156px);font-size:13px;margin-top:6px;line-height:1.5}
+  .howto h3{font-size:14px;margin-top:6px}
+  #success .modal{width:min(720px,calc(100vw - 20px))}
+  #success .body{display:grid;grid-template-columns:1fr 1fr;column-gap:18px;align-items:start}
+  #success .success-head{grid-column:1 / -1}
+  #success .stats{grid-column:1;grid-row:2 / span 3;font-size:13px;gap:3px 10px;margin-top:8px}
+  #success .stats .money{font-size:15px}
+  #success #sBreak,#success #sUnlock,#success .stack{grid-column:2}
+  #sUnlock{font-size:13px;padding:6px 10px;margin-top:8px}
+  #btnNext{font-size:16px !important;padding:9px 14px !important}
+  .badge{width:40px;height:40px;box-shadow:0 0 0 4px rgba(47,194,122,0.22)}
+  .badge svg{width:22px;height:22px}
+  .success-head h2{font-size:18px}
+  #introTitle{font-size:22px}
+  #introBlurb{font-size:13px;margin-top:4px;line-height:1.45}
+  #introInfo{font-size:12px;margin-top:4px}
+  #goTitle{font-size:clamp(34px,13vh,64px)}
+  #goSub{font-size:15px}
+  .go-wrap .row2{margin-top:12px}
+  #loading{gap:10px}
+}
 </style>
 </head>
 <body>
 <canvas id="renderCanvas" tabindex="0"></canvas>
 
+<div id="rotate"><div class="ph"></div><div class="rt">ফোনটা আড়াআড়ি (Landscape) করে ধরুন</div><small>ROTATE YOUR PHONE</small></div>
+
 <div id="loading">
   <div class="wheel"></div>
   <div class="lt">DHAKA RIDER</div>
   <div class="ls" id="loadingText">ঢাকা শহর লোড হচ্ছে…</div>
-  <button class="btn primary hidden" id="btnTapStart">▶ শুরু করতে ক্লিক করুন<small>CLICK OR PRESS ANY KEY</small></button>
+  <button class="btn primary hidden" id="btnTapStart">▶ শুরু করতে <span class="desk-only">ক্লিক</span><span class="touch-only">ট্যাপ</span> করুন<small class="desk-only">CLICK OR PRESS ANY KEY</small><small class="touch-only">TAP TO START</small></button>
 </div>
 
 <div id="hud" class="hidden">
@@ -318,6 +476,7 @@ kbd{font-family:var(--disp);font-size:11px;min-width:26px;text-align:center;padd
     <div class="wal"><span class="lab">টাকা</span><span class="num" id="money">৳0</span></div>
     <div class="wal"><span class="lab">রেটিং</span><span class="num" id="rating">★5.0</span></div>
     <button class="iconbtn" id="btnSoundHud" title="Sound (M)"></button>
+    <button class="iconbtn touch-only" id="btnFsHud" title="Full screen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
     <button class="iconbtn" id="btnPauseHud" title="Pause (Esc)"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg></button>
   </div>
 
@@ -360,13 +519,24 @@ kbd{font-family:var(--disp);font-size:11px;min-width:26px;text-align:center;padd
   <div id="toasts"></div>
   <div id="eventBanner"><div class="ic" id="evIcon">!</div><div class="tx" id="evText">ঘটনা<small>STREET EVENT</small></div></div>
   <div id="prompt" class="hidden"><div id="promptHead" style="display:none"></div><div id="promptKey"><kbd>E</kbd><span id="promptText">পার্সেল নিতে E চাপুন</span></div></div>
+  <div id="touchUI">
+    <div class="tcluster" id="tLeft">
+      <div class="tbtn" data-key="ArrowLeft"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 3.5L6 12l9.5 8.5z"/></svg></div>
+      <div class="tbtn" data-key="ArrowRight"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8.5 3.5L18 12l-9.5 8.5z"/></svg></div>
+    </div>
+    <div class="tcluster" id="tRight">
+      <div class="tbtn e" data-key="KeyE">E</div>
+      <div class="tbtn dn" data-key="ArrowDown"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.5 8.5L12 18l8.5-9.5z"/></svg></div>
+      <div class="tbtn up" data-key="ArrowUp"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.5 15.5L12 6l8.5 9.5z"/></svg></div>
+    </div>
+  </div>
   <div id="subtitle"><div class="who" id="subWho">রাইডার</div><div class="line" id="subLine"></div></div>
   <div id="bigMsg"><div class="b1">DELIVERY COMPLETED</div><div class="b2">ডেলিভারি সফল!</div><div class="b3" id="bigMoney">+৳150</div></div>
 </div>
 
 <div id="menu" class="overlay hidden">
   <div class="menu-card">
-    <span class="kicker">সংস্করণ ০.৩ · ঢাকার ১০টি এলাকা</span>
+    <span class="kicker">সংস্করণ ০.৪ · ঢাকার ১০টি এলাকা</span>
     <h1 class="title"><span class="t1">DHAKA RIDER</span><span class="t2">DELIVERY RUSH</span></h1>
     <div class="title-bn">ঢাকা রাইডার — ডেলিভারি রাশ</div>
     <p class="tagline">মিরপুর থেকে হাতিরঝিল — রেস্তোরাঁ থেকে গরম খাবার তুলুন, জ্যাম-গর্ত-রিকশা পেরিয়ে সময়মতো কাস্টমারের দরজায় পৌঁছে দিন। ভুল করলে কিন্তু পাবলিক তাড়া করবে!</p>
@@ -377,7 +547,7 @@ kbd{font-family:var(--disp);font-size:11px;min-width:26px;text-align:center;padd
       <button class="btn" id="btnHowto">❓ কিভাবে খেলবেন</button>
     </div>
     <div id="menuLevel"></div>
-    <div class="keys">
+    <div class="keys desk-only">
       <div><kbd>W</kbd><kbd>↑</kbd> এক্সিলারেট</div>
       <div><kbd>S</kbd><kbd>↓</kbd> ব্রেক</div>
       <div><kbd>A</kbd><kbd>D</kbd> স্টিয়ারিং</div>
@@ -387,6 +557,7 @@ kbd{font-family:var(--disp);font-size:11px;min-width:26px;text-align:center;padd
       <div><kbd>ESC</kbd> পজ</div>
       <div><kbd>M</kbd> সাউন্ড অন/অফ</div>
     </div>
+    <div class="note touch-only">◀ ▶ বাঁক নিন · ▲ গতি বাড়ান · ▼ ব্রেক / পেছনে · <b>E</b> পার্সেল নিন / দিন</div>
     <div class="note" id="voiceNote"></div>
   </div>
 </div>
@@ -432,6 +603,8 @@ kbd{font-family:var(--disp);font-size:11px;min-width:26px;text-align:center;padd
       <h2>HOW TO PLAY</h2>
       <div class="h2bn">কিভাবে খেলবেন</div>
       <div class="howto">
+        <h3 class="touch-only">ফোনে কন্ট্রোল</h3>
+        <ul class="touch-only"><li>ফোনটা আড়াআড়ি (Landscape) করে ধরুন।</li><li>বাম দিকের ◀ ▶ বাটনে বাঁক নিন।</li><li>ডান দিকের ▲ চেপে ধরলে বাইক চলবে, ▼ চাপলে ব্রেক হবে বা পেছনে যাবে।</li><li>হলুদ <b>E</b> বাটন জ্বলজ্বল করলে চাপুন — পার্সেল নেওয়া, দেওয়া বা তেল ভরা।</li></ul>
         <h3>লক্ষ্য</h3>
         <ul><li>হলুদ চিহ্নিত রেস্তোরাঁয় গিয়ে <kbd>E</kbd> চেপে পার্সেল নিন।</li><li>সবুজ-নীল চিহ্নিত কাস্টমারের কাছে সময়ের মধ্যে পৌঁছে <kbd>E</kbd> চেপে পার্সেল দিন।</li><li>লেভেলের সব অর্ডার শেষ করলে পরের এলাকা আনলক হবে।</li></ul>
         <h3>নেভিগেশন</h3>
@@ -439,7 +612,7 @@ kbd{font-family:var(--disp);font-size:11px;min-width:26px;text-align:center;padd
         <h3>পার্সেল ও টাকা</h3>
         <ul><li>ধাক্কা, গর্ত আর জোরে ব্রেকে পার্সেলের অবস্থা কমে। ০% হলে মিশন ব্যর্থ!</li><li>সময়মতো ও নিরাপদে পৌঁছালে বোনাস; দেরি বা ক্ষতি হলে টাকা কাটা যাবে।</li><li>কিছু এলাকায় তেল কম — মিনিম্যাপে ⛽ পাম্পে গিয়ে <kbd>E</kbd> চাপুন।</li></ul>
         <h3>সাবধান!</h3>
-        <ul><li>দোকান, ফলের ভ্যান বা মানুষের সাথে ধাক্কা লাগলে লোকজন রেগে যায়। বেশি ঝামেলা করলে পাবলিক তাড়া করবে — ধরা পড়লে GAME OVER!</li><li>তাড়া খেলে দ্রুত দূরে পালান, লাল বার ভরলেই মুক্তি।</li><li>বাইক আটকে গেলে <kbd>R</kbd> চাপুন।</li></ul>
+        <ul><li>দোকান, ফলের ভ্যান বা মানুষের সাথে ধাক্কা লাগলে লোকজন রেগে যায়। বেশি ঝামেলা করলে পাবলিক তাড়া করবে — ধরা পড়লে GAME OVER!</li><li>তাড়া খেলে দ্রুত দূরে পালান, লাল বার ভরলেই মুক্তি।</li><li>বাইক আটকে গেলে <span class="desk-only"><kbd>R</kbd> চাপুন, অথবা </span>পজ মেনু থেকে "বাইক রাস্তায় ফেরান" চাপুন।</li></ul>
       </div>
       <div class="row2"><button class="btn primary small" id="btnHowtoClose">বুঝেছি!</button></div>
     </div>
@@ -455,7 +628,7 @@ kbd{font-family:var(--disp);font-size:11px;min-width:26px;text-align:center;padd
       <div id="introBlurb"></div>
       <div id="introInfo"></div>
       <div class="row2">
-        <button class="btn primary small" id="btnIntroStart">▶ শুরু করুন (Enter)</button>
+        <button class="btn primary small" id="btnIntroStart">▶ শুরু করুন<span class="desk-only"> (Enter)</span></button>
         <button class="btn" id="btnIntroLevels">লেভেল সিলেক্ট</button>
       </div>
     </div>
@@ -470,6 +643,7 @@ kbd{font-family:var(--disp);font-size:11px;min-width:26px;text-align:center;padd
       <div class="h2bn">গেম থামানো আছে</div>
       <div class="stack">
         <button class="btn" id="btnResume"><span>চালিয়ে যান</span><kbd>ESC</kbd></button>
+        <button class="btn" id="btnRecoverP"><span>বাইক রাস্তায় ফেরান</span><kbd>R</kbd></button>
         <button class="btn" id="btnRestartP"><span>লেভেল রিস্টার্ট</span><span>↺</span></button>
         <button class="btn" id="btnSettingsP"><span>সেটিংস</span><span>⚙</span></button>
         <button class="btn" id="btnSoundP"><span>সাউন্ড: চালু</span><kbd>M</kbd></button>
@@ -538,6 +712,8 @@ const canvas = $('renderCanvas');
 const Settings = { quality: 'high', muted: false };
 try { const q = localStorage.getItem('dr_quality'); if (q === 'low' || q === 'high') { Settings.quality = q; Settings.qualityChosen = true; } } catch (e) { /* storage blocked */ }
 try { Settings.muted = localStorage.getItem('dr_muted') === '1'; } catch (e) { /* storage blocked */ }
+// phones and tablets start on Low graphics unless the player picked a level in Settings
+if (!Settings.qualityChosen && document.documentElement.classList.contains('touch')) Settings.quality = 'low';
 function saveSetting(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* ignore */ } }
 
 /* ---------------------------------------------------------------------
@@ -1613,6 +1789,7 @@ const VOICE_FILES = {
   "rider_side": ["assets/audio/voices/rider/rider_side.mp3", 1.85],
   "rider_bachlam": ["assets/audio/voices/rider/rider_bachlam.mp3", 2.87],
   "rider_gesi": ["assets/audio/voices/rider/rider_gesi.mp3", 1.91],
+  "rider_osanti": ["assets/audio/voices/rider/rider_osanti.mp3", 2.74],
   "rick_road": ["assets/audio/voices/npc/rick_road.mp3", 2.85],
   "npc_khaiya": ["assets/audio/voices/npc/npc_khaiya.mp3", 3.13],
   "pub_seal": ["assets/audio/voices/npc/pub_seal.mp3", 4.60],
@@ -4052,8 +4229,18 @@ const Chaos = {
     Peds.notice(s.x, s.z, 22);
     s.willChase = true; // the stall owner always comes after the rider (STALL_CHASE_T seconds later)
   },
+  /* the rider's own reaction to a pothole or a crash into any vehicle; never queued late behind other lines */
+  ouchLine() {
+    if (GameOver.active || !playing()) return null;
+    if (Dialogue.busy() && Dialogue.curPrio >= PRIO.collision) return null;
+    const l = Dialogue.last.osanti; if (l != null && Dialogue.now - l < 4) return null;
+    Dialogue.last.osanti = Dialogue.now;
+    return { who: 'rider', voice: 'rider_osanti', text: 'অশান্তি!', actor: bike.rider };
+  },
+  riderOuch() { const l = this.ouchLine(); if (l) Dialogue.say([l], { prio: PRIO.collision }); },
   parkedHit(pk) {
     pk.cd = 4; pk.tip = 1; pk.t = 0;
+    this.riderOuch();
     const ps = Sound.positional(pk.v.root.position);
     if (pk.kind === 'rickshaw') SFX.rickshaw(ps.pan); else SFX.metalStall();
     P.v *= 0.5; P.shake = Math.max(P.shake, 0.3);
@@ -4072,14 +4259,20 @@ const Chaos = {
   },
   vehicleHit(a, speed) {
     if (a.hitCd > 0) return; a.hitCd = 3; a.bump = 1.4;
+    const ouch = this.ouchLine();
     const ps = Sound.positional(a.pos);
     if (a.kind === 'rickshaw') {
       SFX.rickshaw(ps.pan);
       if (a.v.driver) { a.v.driver.setAction('gesture', true); a.v.driver.look = P.pos; a.v.driver.anchor = a.v.driver.anchor || anchorOf(a.v.driver); }
       const lines = [{ who: 'rickshaw', voice: 'rick_road', text: 'ও ভাই! রাস্তা কি আপনার একার?', actor: a.v.driver }];
       if (Math.random() < 0.45) lines.push({ who: 'rider', voice: 'rider_side', text: 'মামা, একটু সাইড দেন!', actor: bike.rider });
-      Dialogue.say(lines, { prio: PRIO.collision, key: 'rickhit', cd: 18 });
-    } else if (a.kind === 'cng') SFX.cng(ps.pan);
+      // one queue: the rider's "osanti" first, then the rickshaw driver answers
+      if (ouch) lines.unshift(ouch);
+      if (!Dialogue.say(lines, { prio: PRIO.collision, key: 'rickhit', cd: 18 }) && ouch) Dialogue.say([ouch], { prio: PRIO.collision });
+      Mission.rep(-0.1); return;
+    }
+    if (ouch) Dialogue.say([ouch], { prio: PRIO.collision });
+    if (a.kind === 'cng') SFX.cng(ps.pan);
     else if (a.kind === 'bus' || a.kind === 'minibus') SFX.bus(ps.pan);
     else if (a.kind === 'moto') { Sound.horn(0.8, ps.pan, 1.5); Sound.crash(0.4); }
     else SFX.car(ps.pan);
@@ -4590,7 +4783,7 @@ function impact(hit, kind, agent) {
   const fx = Math.sin(P.yaw) * Math.sign(P.v || 1), fz = Math.cos(P.yaw) * Math.sign(P.v || 1);
   const into = -(fx * hit.nx + fz * hit.nz); if (into <= 0) return;
   const sp = Math.abs(P.v);
-  if (sp > 10.5 && into > 0.7 && P.fall <= 0 && playing()) { bikeFall(sp); return; }
+  if (sp > 10.5 && into > 0.7 && P.fall <= 0 && playing()) { if (agent) Chaos.vehicleHit(agent, sp); bikeFall(sp); return; }
   const loss = 0.25 + 0.75 * into;
   if (into > 0.72 && sp > 4) P.v = -Math.sign(P.v) * sp * 0.22; else P.v *= (1 - loss * 0.9);
   if (sp > 4.5 && P.crashCd <= 0) {
@@ -4683,6 +4876,7 @@ function potholeHit(ph) {
   P.bounceV = -(2.2 + Math.abs(P.v) * 0.12); P.v *= 0.8; P.shake = Math.max(P.shake, 0.55); P.boxShake = 1;
   SFX.pothole(); FX.burst(FX.mud, ph.x, 0.15, ph.z, 45);
   Mission.damage(5, 'pothole');
+  Chaos.riderOuch();
   if (Events.can('pothole')) {
     Events.begin('pothole'); Events.potholeT = 2.6;
     bike.rider.setAction('rideFlail', true);
@@ -5304,7 +5498,7 @@ function openLevelSelect() {
     info.querySelector('b').textContent = L.name; info.querySelector('.lb').textContent = L.blurb;
     info.querySelector('.lbest').textContent = locked ? '🔒 লক করা — আগের লেভেল শেষ করুন' : best ? `সেরা: ★${best.rating.toFixed(1)} · ${fmtTime(best.time)} · ৳${best.earn}` : 'এখনও খেলা হয়নি';
     const btn = document.createElement('button'); btn.className = 'btn' + (locked ? '' : ' primary small'); btn.textContent = locked ? 'লক' : '▶ খেলুন'; btn.disabled = locked;
-    btn.addEventListener('click', (e) => { e.currentTarget.blur(); loadLevel(L.id); });
+    btn.addEventListener('click', (e) => { e.currentTarget.blur(); TouchUI.fullscreen(); loadLevel(L.id); });
     info.appendChild(btn);
     card.appendChild(pv); card.appendChild(info); grid.appendChild(card);
   }
@@ -5330,7 +5524,7 @@ window.addEventListener('keyup', (e) => { Keys[e.code] = false; });
 window.addEventListener('blur', () => { for (const k in Keys) Keys[k] = false; if (Game.state === 'playing' && $('success').classList.contains('hidden') && !GameOver.active) pauseGame(true); });
 const clickBlur = (id, fn) => $(id).addEventListener('click', (e) => { e.currentTarget.blur(); fn(); });
 // Play = continue: if this level is already finished and a newer one is unlocked, go to the newest
-clickBlur('btnPlay', () => loadLevel(Progress.data.best[World.L.id] && Progress.data.unlocked > World.L.id ? Progress.data.unlocked : World.L.id));
+clickBlur('btnPlay', () => { TouchUI.fullscreen(); loadLevel(Progress.data.best[World.L.id] && Progress.data.unlocked > World.L.id ? Progress.data.unlocked : World.L.id); });
 clickBlur('btnLevels', openLevelSelect); clickBlur('btnLevelsBack', () => { hideOverlay('levels'); if (Game.state === 'menu' || Game.state === 'intro') showOverlay(Game.state === 'intro' ? 'intro' : 'menu'); });
 clickBlur('btnSettings', () => { Sound.init(); refreshButtons(); showOverlay('settings'); });
 clickBlur('btnHowto', () => showOverlay('howto')); clickBlur('btnHowtoClose', () => hideOverlay('howto'));
@@ -5359,7 +5553,7 @@ clickBlur('btnRestartS', () => { resetAll(); });
 clickBlur('btnLevelsS', () => { hideOverlay('success'); Game.state = 'menu'; $('hud').classList.add('hidden'); Music.stop(); Sound.engine(0, 0, false); StartMusic.play(true); openLevelSelect(); });
 clickBlur('btnGoRestart', () => { GameOver.reset(); resetAll(); Music.play('city'); });
 clickBlur('btnGoLevels', () => { GameOver.reset(); Game.state = 'menu'; $('hud').classList.add('hidden'); Music.stop(); Sound.engine(0, 0, false); StartMusic.play(true); openLevelSelect(); });
-clickBlur('btnIntroStart', startGame);
+clickBlur('btnIntroStart', () => { TouchUI.fullscreen(); startGame(); });
 clickBlur('btnIntroLevels', openLevelSelect);
 if ('speechSynthesis' in window) window.speechSynthesis.onvoiceschanged = () => { Voice.findTTS(); refreshButtons(); };
 
@@ -5421,6 +5615,75 @@ const Metro = {
 };
 
 /* =====================================================================
+   TOUCH CONTROLS — phones and tablets (landscape): on-screen arrows + E,
+   tap the prompt for E, full screen + landscape lock, pause when turned upright
+   ===================================================================== */
+const TouchUI = {
+  on: document.documentElement.classList.contains('touch'),
+  held: new Map(),
+  fsEl() { return document.fullscreenElement || document.webkitFullscreenElement || null; },
+  fsSupported() { const d = document.documentElement; return !!(d.requestFullscreen || d.webkitRequestFullscreen); },
+  /* full screen hides the browser bars; Android then also allows locking the screen to landscape */
+  fullscreen() {
+    if (!this.on || !this.fsSupported() || this.fsEl()) return;
+    const d = document.documentElement, rq = d.requestFullscreen || d.webkitRequestFullscreen;
+    const lock = () => { try { const o = screen.orientation; if (o && o.lock) o.lock('landscape').catch(() => {}); } catch (e) { /* not supported */ } };
+    try { const pr = rq.call(d, { navigationUI: 'hide' }); if (pr && pr.then) pr.then(lock).catch(() => {}); else lock(); } catch (e) { /* blocked */ }
+  },
+  toggleFullscreen() {
+    if (this.fsEl()) { const ex = document.exitFullscreen || document.webkitExitFullscreen; if (ex) try { ex.call(document); } catch (e) { /* ignore */ } } else this.fullscreen();
+  },
+  press(b, down) {
+    const k = b.dataset.key; b.classList.toggle('on', down);
+    if (k === 'KeyE') { if (down) onKeyPress('KeyE'); return; }
+    Keys[k] = down;
+  },
+  release(id) { const b = this.held.get(id); if (!b) return; this.held.delete(id); this.press(b, false); },
+  releaseAll() { for (const id of [...this.held.keys()]) this.release(id); },
+  init() {
+    if (!this.on) return;
+    if (!this.fsSupported()) $('btnFsHud').classList.add('hidden');
+    $('btnFsHud').addEventListener('click', (e) => { e.currentTarget.blur(); this.toggleFullscreen(); });
+    for (const b of document.querySelectorAll('#touchUI .tbtn')) {
+      b.addEventListener('pointerdown', (e) => {
+        e.preventDefault(); this.release(e.pointerId);
+        try { b.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
+        this.held.set(e.pointerId, b); this.press(b, true);
+      });
+      b.addEventListener('contextmenu', (e) => e.preventDefault());
+    }
+    // a thumb can slide from one arrow to its neighbour without lifting
+    window.addEventListener('pointermove', (e) => {
+      const cur = this.held.get(e.pointerId); if (!cur || cur.dataset.key === 'KeyE') return;
+      const el = document.elementFromPoint(e.clientX, e.clientY), nb = el && el.closest ? el.closest('.tbtn') : null;
+      if (nb && nb !== cur && nb.parentElement === cur.parentElement && nb.dataset.key !== 'KeyE') { this.press(cur, false); this.held.set(e.pointerId, nb); this.press(nb, true); }
+    });
+    const up = (e) => this.release(e.pointerId);
+    window.addEventListener('pointerup', up); window.addEventListener('pointercancel', up);
+    window.addEventListener('blur', () => this.releaseAll());
+    // tapping the "press E" prompt works like the E button
+    $('prompt').addEventListener('pointerdown', (e) => { e.preventDefault(); onKeyPress('KeyE'); });
+    // turned upright while riding: pause (the rotate screen covers the game)
+    const portrait = window.matchMedia ? window.matchMedia('(orientation: portrait)') : null;
+    const onTurn = () => {
+      if (!portrait || !portrait.matches) return;
+      this.releaseAll();
+      if (Game.state === 'playing' && $('success').classList.contains('hidden') && !GameOver.active) pauseGame(true);
+    };
+    if (portrait) { if (portrait.addEventListener) portrait.addEventListener('change', onTurn); else if (portrait.addListener) portrait.addListener(onTurn); }
+    // iPhone/iPad: each audio element has to be started once from a tap before it may play later
+    const unlock = () => {
+      window.removeEventListener('touchend', unlock, true);
+      const els = Object.values(Voice.els || {}).concat(Object.values(Clips.els || {}));
+      for (const a of els) { try { if (a && a.paused && a.load) a.load(); } catch (e) { /* ignore */ } }
+    };
+    window.addEventListener('touchend', unlock, true);
+  },
+};
+TouchUI.init();
+clickBlur('btnRecoverP', () => { pauseGame(false); if (playing() && !P.locked) recoverBike(); });
+
+/* =====================================================================
    BOOT
    ===================================================================== */
 function setLoading(t) { const el = $('loadingText'); if (el) el.textContent = t; }
@@ -5461,7 +5724,7 @@ function boot() {
         if (ok || shown) { reveal(); return; }
         $('loadingText').textContent = 'ঢাকা শহর তৈরি!'; document.querySelector('#loading .wheel').style.display = 'none';
         const btn = $('btnTapStart'); btn.classList.remove('hidden');
-        const go = (e) => { if (e) e.preventDefault(); window.removeEventListener('keydown', go, true); Sound.init(); Voice.findTTS(); reveal(); };
+        const go = (e) => { if (e) e.preventDefault(); window.removeEventListener('keydown', go, true); Sound.init(); Voice.findTTS(); TouchUI.fullscreen(); reveal(); };
         btn.addEventListener('click', go, { once: true }); window.addEventListener('keydown', go, true);
       });
     });
@@ -5511,7 +5774,6 @@ setTimeout(boot, 30);
   }
   function go() {
     if (started) return; started = true;
-    setText('ফন্ট লোড হচ্ছে…');
     fontsReady().then(function () { window.startDhakaRider(); });
   }
   function next() {

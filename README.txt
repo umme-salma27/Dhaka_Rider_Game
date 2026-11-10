@@ -1,6 +1,7 @@
 ===============================================================
   DHAKA RIDER — DELIVERY RUSH   (ঢাকা রাইডার — ডেলিভারি রাশ)
-  Version 0.3  ·  3D browser game (Babylon.js)  ·  10 Dhaka areas
+  Version 0.4  ·  3D browser game (Babylon.js)  ·  10 Dhaka areas
+  Plays on computers (keyboard) and on phones / tablets (touch)
 ===============================================================
 
 দ্রুত শুরু (Quick start)
@@ -11,6 +12,12 @@
 ৪. নীল নেভিগেশন তীর অনুসরণ করে রেস্তোরাঁয় যান, কর্মীর কাছে E চাপুন,
    তারপর সময়ের মধ্যে কাস্টমারের কাছে গিয়ে আবার E চাপুন।
 ৫. লেভেলের সব অর্ডার শেষ করলে পরের এলাকা আনলক হবে।
+
+ফোনে খেলা (Playing on a phone)
+-------------------------------
+লাইভ লিংক (dhaka-rider-game.vercel.app) ফোনের Chrome / Safari-তে খুলুন,
+ফোনটা আড়াআড়ি (landscape) করে ধরুন। বাম দিকে ◀ ▶ (বাঁক), ডান দিকে
+▲ (গতি), ▼ (ব্রেক / পেছনে) আর হলুদ E বাটন। বিস্তারিত: সেকশন 3b।
 
 IMPORTANT: keep the "assets" folder next to index.html. It holds the
 Bengali voice clips (assets/audio/voices/...). Without it the game still
@@ -29,8 +36,9 @@ runs, but dialogue falls back to browser speech or subtitles only.
                                   bell.mp3 (rickshaw bell)
   README.txt                      this file
   backup_v0.1/                    the first version (v0.1), untouched
-  backup_v0.3/, backup_v0.3.1/,
-  backup_v0.3.2/                  earlier versions, newest last
+  backup_v0.3/ … backup_v0.3.4/   earlier versions, newest last
+                                  (keep them on your computer only;
+                                  they are not needed on GitHub)
 
 
 2. HOW TO OPEN THE GAME
@@ -58,6 +66,36 @@ runs, but dialogue falls back to browser speech or subtitles only.
   ESC  (or P)        Pause / resume
   M                  Sound on / off
   Enter              Start level (intro screen) / next order
+
+
+3b. PHONE AND TABLET (TOUCH) CONTROLS — new in v0.4
+----------------------------------------------------
+Phones and tablets are detected automatically (touch screen without a
+mouse) and get a separate layout:
+- Landscape only. Held upright, the game shows "ফোনটা আড়াআড়ি
+  (Landscape) করে ধরুন" and pauses the ride. On Android the game also
+  switches to full screen and locks landscape after the first tap; the
+  ⛶ button in the top bar enters / leaves full screen. (iPhone Safari
+  has no full-screen mode for web pages; keep auto-rotate on.)
+- On-screen buttons:
+    ◀  ▶   (bottom left)   turn left / right
+    ▲      (bottom right)  accelerate (hold)
+    ▼      (bottom right)  brake; hold when stopped to reverse
+    E      (yellow)        pick up / hand over / refuel — it pulses when
+                           there is something to press it for; tapping
+                           the "press E" prompt works too
+  Two fingers work at once (▲ + ◀/▶), and a thumb can slide from ◀ to ▶
+  without lifting.
+- Pause (top right ॥) opens the pause menu, which now also has
+  "বাইক রাস্তায় ফেরান" (the R key on a computer).
+- Compact HUD: smaller mission card (top left), navigation (top centre),
+  money / rating / sound / full screen / pause (top right), the minimap
+  stays on screen under them, a small speed read-out at the bottom
+  centre. The keyboard card is hidden.
+- Menus, level select, settings, pause and the delivery result are laid
+  out to fit a short landscape screen.
+- Phones start on Graphics Low (faster); Settings → Graphics: High if
+  your phone is strong.
 
 
 4. THE 10 LEVELS (unlocked one by one)
@@ -166,6 +204,11 @@ each neighbourhood — not exact street maps.
   "মামা, একটু সাইড দেন!" (same when you bump a rickshaw).
 - Potholes bounce the bike and damage the parcel; a hard head-on crash
   tips the bike over.
+- The rider says "অশান্তি!" (your recording, rider_osanti.mp3) when the
+  bike drops into a pothole or crashes into any vehicle — moving or
+  parked bus, car, CNG, motorbike or rickshaw. With a rickshaw he says
+  it first and the puller answers. At most once every 4 seconds, so a
+  row of potholes does not repeat it.
 - BUMPING A PEDESTRIAN: an "AYE!" sound, the person is knocked flat and
   lies on the road. After 3 seconds they shout — the two lines take
   turns from one incident to the next: "আমি তরে সিল মাইরা দিমু!" and
@@ -192,14 +235,14 @@ each neighbourhood — not exact street maps.
 8. BENGALI VOICES
 -----------------
 - Every spoken line in the game is a real recording you supplied
-  (assets/audio/voices): 11 lines you recorded (rider, customer,
+  (assets/audio/voices): 12 lines you recorded (rider, customer,
   rickshaw puller, stall owner, angry man) and the two film-dialogue
   clips for the knocked-down pedestrians. They were trimmed, cleaned of
   light background hiss and set to the same loudness; the two film
   clips also had their background noise reduced and the sound effects
   at their start and end cut off.
-- The older AI-generated voice files are no longer used by the game
-  (they may still sit in the assets folder; they can be deleted).
+- The older AI-generated voice files have been removed; the game no
+  longer uses any AI voice.
 - If an audio file is missing or cannot be played, the line is shown
   as a subtitle instead (or read by the browser's Bengali voice if the
   computer has one — never an English voice).
@@ -272,8 +315,22 @@ opening index.html from the file system (file://), as you will:
   speech bubbles appeared except the beating pop-ups.
 - Start music, Settings voice test, sliders (saved), pause / resume,
   and the automatic "switch to Low graphics" safeguard.
+- v0.4 (phones): emulated phones in landscape — 640×360, 844×390
+  (iPhone 12/13/14), 932×430 (large phones) and a 1024×768 tablet —
+  with real touch events: holding ▲ drives, ▲ + ◀ together turns, a
+  thumb slide from ◀ to ▶ switches direction, releasing stops all
+  input, ▼ brakes and reverses, E picks up the parcel, the E button
+  pulses at the restaurant, the HUD panels do not overlap and stay on
+  screen, menus / settings / pause / result fit, turning the phone
+  upright shows the rotate screen and pauses. Full screen is entered on
+  the first tap.
+- v0.4 (voice): "অশান্তি!" on a pothole, on a real crash into a bus,
+  on a direct car/bus hit, and before the rickshaw puller's line.
+- v0.4 (computer): keyboard layout unchanged, no touch buttons, the
+  "ফন্ট লোড হচ্ছে…" line is gone from the loading screen.
 Not tested: real sound output (no speakers in the test machine), the
-look and frame rate on a real graphics card, other browsers.
+look and frame rate on a real graphics card or a real phone, other
+browsers (iPhone Safari in particular).
 
 
 12. KNOWN LIMITATIONS
@@ -298,7 +355,11 @@ look and frame rate on a real graphics card, other browsers.
   not steer around you.
 - Selecting a different level reloads the page (2–15 s depending on
   the PC). Restarting the same level is instant.
-- Keyboard only (no touch or gamepad controls).
+- Keyboard (computer) or on-screen buttons (phone / tablet); no gamepad.
+- Phones: a busy level asks a lot of a phone; older phones may run
+  slowly even on Low. iPhone Safari cannot lock landscape or go full
+  screen for a web page. Changing level reloads the page, which leaves
+  full screen; the next "tap to start" turns it back on (Android).
 - Progress and settings use browser storage (localStorage). Some
   browsers / privacy modes block it for file:// pages; then progress
   resets when the page is closed.
